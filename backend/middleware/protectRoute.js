@@ -1,0 +1,33 @@
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+
+// Checks if a user is logged in via cookie
+export const protectRoute = async (req, res, next) => {
+    let token = req.cookies.jwt;
+
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            // Attach the full user object (minus password) to the request
+            req.user = await User.findById(decoded.userId).select('-password');
+            if (req.user) {
+                next();
+            } else {
+                return res.status(404).json({ message: 'User not found' });
+            }
+        } catch (error) {
+            return res.status(401).json({ message: 'Not authorized, token failed' });
+        }
+    } else {
+        return res.status(401).json({ message: 'Not authorized, no token' });
+    }
+};
+
+// Checks if the logged-in user has the 'station-master' role
+export const admin = (req, res, next) => {
+    if (req.user && req.user.role === 'station-master') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Not authorized as an admin' });
+    }
+};

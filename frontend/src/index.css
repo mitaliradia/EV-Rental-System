@@ -1,0 +1,46 @@
+/* Tailwind base (v3+ setup) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* EV-Go theme constraints */
+/* Color usage: indigo-600 primary, green-500 success, red-500 error, yellow-500 warning, gray scale for backgrounds/text */
+
+:root {
+  color-scheme: light;
+}
+
+/* Reusable components */
+.btn {
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed;
+}
+.btn-primary {
+  @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-600;
+}
+.btn-outline {
+  @apply border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus:ring-indigo-600;
+}
+.input {
+  @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600;
+}
+.label {
+  @apply mb-1 block text-sm font-medium text-gray-700;
+}
+.card {
+  @apply rounded-lg border border-gray-200 bg-white shadow-sm;
+}
+.badge {
+  @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+}
+.badge-success {
+  @apply bg-green-100 text-green-700;
+}
+.badge-error {
+  @apply bg-red-100 text-red-700;
+}
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-700;
+}
+.badge-info {
+  @apply bg-indigo-100 text-indigo-700;
+}
