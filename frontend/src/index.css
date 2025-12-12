@@ -1,7 +1,11 @@
 /* Tailwind base (v3+ setup) */
+
+@import "react-datepicker/dist/react-datepicker.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
 
 /* EV-Go theme constraints */
 /* Color usage: indigo-600 primary, green-500 success, red-500 error, yellow-500 warning, gray scale for backgrounds/text */

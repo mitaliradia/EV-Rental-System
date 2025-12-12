@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['user', 'station-master'], default: 'user' },
+    role: { type: String, enum: ['user', 'station-master','super-admin'], default: 'user' },
+    station: { type : mongoose.Schema.Types.ObjectId, ref: 'Station', required: false},
     kyc: {
         documentPath: { type: String, default: '' },
         status: { type: String, enum: ['not-submitted', 'pending', 'approved', 'rejected'], default: 'not-submitted' },

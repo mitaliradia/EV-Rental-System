@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-// You can create a simple SVG logo component or import an image
+
 const Logo = () => (
-    <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <svg className="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
 );
 
 const Navbar = () => {
@@ -24,24 +24,31 @@ const Navbar = () => {
                         <Logo />
                         <span className="text-xl font-bold text-gray-800">EV-Go</span>
                     </Link>
+                    
+                    {/* --- ADDED THIS SECTION FOR CENTRAL NAVIGATION --- */}
                     <div className="hidden md:flex items-center space-x-6">
-                        <Link to="/vehicles" className="text-gray-600 hover:text-indigo-600 transition-colors">Our Fleet</Link>
-                        {/* More links can go here */}
+                        <Link to="/vehicles" className="text-gray-600 hover:text-indigo-600 transition-colors font-medium">
+                            Our Fleet
+                        </Link>
+                        {/* You could add more links here like "About Us" or "Contact" */}
                     </div>
+                    {/* ------------------------------------------- */}
+
                     <div className="flex items-center space-x-4">
                         {authUser ? (
                             <>
-                                <span className="hidden sm:block text-gray-700">Welcome, {authUser.name}</span>
                                 <Link to="/profile" className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">Profile</Link>
                                 {authUser.role === 'station-master' && (
                                     <Link to="/admin/dashboard" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Admin</Link>
                                 )}
-                                <button onClick={handleLogout} className="text-gray-500 hover:text-red-600">&times; Logout</button>
+                                <button onClick={handleLogout} title="Logout" className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                </button>
                             </>
                         ) : (
                             <>
                                 <Link to="/login" className="text-gray-600 hover:text-indigo-600">Login</Link>
-                                <Link to="/register" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Register</Link>
+                                <Link to="/register" className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 shadow-sm transition-transform transform hover:scale-105">Register</Link>
                             </>
                         )}
                     </div>
@@ -50,4 +57,5 @@ const Navbar = () => {
         </header>
     );
 };
+
 export default Navbar;

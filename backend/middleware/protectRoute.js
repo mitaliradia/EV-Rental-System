@@ -23,11 +23,20 @@ export const protectRoute = async (req, res, next) => {
     }
 };
 
+export const stationMaster = (req,res,next) => {
+    if(req.user && (req.user.role === 'station-master' || req.user.role === 'super-admin')){
+        next();
+    }
+    else{
+        res.status(403).json({message: 'Not authorized as a Station Master or a Super Admin'});
+    }
+}
+
 // Checks if the logged-in user has the 'station-master' role
-export const admin = (req, res, next) => {
-    if (req.user && req.user.role === 'station-master') {
+export const superAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'super-admin') {
         next();
     } else {
-        res.status(403).json({ message: 'Not authorized as an admin' });
+        res.status(403).json({ message: 'Not authorized as a Super Admin' });
     }
 };

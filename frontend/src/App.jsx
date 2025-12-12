@@ -5,15 +5,17 @@ import { Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import UserRoute from './components/UserRoute';
-import AdminRoute from './components/AdminRoute';
 
 // Pages
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
+import StationMasterDashboard from './pages/StationMasterDashboard';
 import VehiclesPage from './pages/VehiclesPage';
+import StationMasterRoute from './components/stationMasterRoute';
+import SuperAdminRoute from './components/superAdminRoute';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 
 function App() {
   return (
@@ -30,10 +32,12 @@ function App() {
           <Route element={<UserRoute />}>
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
-          <Route element={<AdminRoute />}>
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route element={<StationMasterRoute />}>
+            <Route path="/admin/dashboard" element={<StationMasterDashboard />} />
           </Route>
-          <Route path="*" element={<div className="text-center"><h1>404</h1></div>} />
+          <Route element={<SuperAdminRoute />}>
+            <Route path="/super-admin" element={<SuperAdminDashboard />} />
+          </Route>
         </Routes>
       </main>
     </div>
