@@ -35,23 +35,21 @@ const Navbar = () => {
                     {/* ------------------------------------------- */}
 
                     <div className="flex items-center space-x-4">
-                        {authUser ? (
-                            <>
-                                <Link to="/profile" className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">Profile</Link>
-                                {authUser.role === 'station-master' && (
-                                    <Link to="/admin/dashboard" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Admin</Link>
-                                )}
-                                <button onClick={handleLogout} title="Logout" className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-600 transition-colors">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link to="/login" className="text-gray-600 hover:text-indigo-600">Login</Link>
-                                <Link to="/register" className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 shadow-sm transition-transform transform hover:scale-105">Register</Link>
-                            </>
+                    {authUser ? (<>
+                        {authUser.role === 'user' && (
+                                    <Link to="/profile" className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                                        My Profile
+                                    </Link>
                         )}
-                    </div>
+                        {authUser.role === 'station-master' && <Link to="/dashboard">My Dashboard</Link>}
+                        {authUser.role === 'super-admin' && <Link to="/super-admin">Super Admin</Link>}
+                        <Link to="/profile">Profile</Link>
+                        <button onClick={handleLogout}>Logout</button>
+                    </>) : (<>
+                        <Link to="/login">Login</Link>
+                        <Link to="/register">Register</Link>
+                    </>)}
+                </div>
                 </div>
             </nav>
         </header>

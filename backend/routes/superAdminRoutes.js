@@ -1,23 +1,16 @@
 import express from 'express';
 import { protectRoute, superAdmin } from '../middleware/protectRoute.js';
-import { assignStationMaster, createStation, getAllStations, getAllUsers } from '../controllers/superAdminController.js';
+import { createStation, getAllStations, assignStationMaster, getAllUsersAndMasters, getAssignmentData, removeStationMaster, getStationDetails } from '../controllers/superAdminController.js';
 
 const router = express.Router();
-
 router.use(protectRoute, superAdmin);
 
-router.route('/stations')
-    .post(createStation)
-    .get(getAllStations);
-
-router.route('/stations/:id')
-    .get(getStationDetails)
-    .put(updateStation)
-    .delete(deleteStation);
-
+router.post('/stations', createStation);
+router.get('/stations', getAllStations);
+router.get('/stations/:id',getStationDetails);
 router.get('/users', getAllUsersAndMasters);
-
-router.put('/users/:userId/assign-master',assignStationMaster);
-router.put('/users/:userId/remove-master',removeStationMaster);
+router.put('/users/:userId/assign', assignStationMaster);
+router.get('/assignment-data', getAssignmentData);
+router.put('/users/:userId/remove-master', removeStationMaster);
 
 export default router;

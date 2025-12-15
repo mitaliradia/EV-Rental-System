@@ -5,11 +5,18 @@ import Vehicle from "../models/Vehicle.js";
 
 export const createStation = async (req,res) => {
     const {name,location} = req.body;
+    if (!name || !location) return res.status(400).json({ message: 'Name and location are required' });
     const station = await Station.create({name,location});
     res.status(201).json(station);
 };
 
 export const getAllStations = async (req,res) => res.json(await Station.find({}));
+
+export const getAllUsers = async (req, res) => {
+    // Find all users who are not already admins
+    const users = await User.find({ role: 'user' }).select('name email');
+    res.json(users);
+};
 
 // NEW: Get detailed stats for a single station
 export const getStationDetails = async (req, res) => {
@@ -76,4 +83,31 @@ export const removeStationMaster = async (req, res) => {
             res.status(400).json({ message: 'User is not a Station Master' });
         }
     } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+// ... (imports: User, Station)
+
+// NEW function to get data specifically for the assignment UI
+export const getAssignmentData = async (req, res) => {
+    try {
+        // 1. Find all stations that are ALREADY assigned to a master
+        const assignedStationIds = await User.find({ role: 'station-master' }).distinct('station');
+
+        // 2. Find all stations that are NOT in the assigned list
+        const availableStations = await Station.find({ _id: { $nin: assignedStationIds } });
+
+        const allUsers = await User.find({ role: { $ne: 'super-admin' } })
+            .populate('station', 'name')
+            // Ensure we select ALL necessary fields for EVERY user.
+            .select('name email role station');
+        // ------------------------------------
+
+        res.json({
+            users: allUsers, // Send the complete and correct list
+            availableStations,
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
 };

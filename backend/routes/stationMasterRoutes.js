@@ -1,6 +1,6 @@
 import express from 'express';
 import { protectRoute, stationMaster } from '../middleware/protectRoute.js';
-import { addVehicle, getKycRequests, getPendingBookings, updateBookingStatus, updateKycStatus } from '../controllers/stationMasterController.js';
+import { addVehicleToStation, getDashboardData, getKycRequests, getPendingBookings, updateBookingStatus, updateKycStatus } from '../controllers/stationMasterController.js';
 
 
 
@@ -9,8 +9,9 @@ router.use(protectRoute,stationMaster);
 
 router.get('/kyc-requests',getKycRequests);
 router.put('/kyc/:userId', updateKycStatus);
-router.post('/vehicles', addVehicle);
+router.post('/vehicles', addVehicleToStation);
 router.get('/bookings/pending',getPendingBookings);
 router.put('/bookings/:id',updateBookingStatus);
+router.get('/dashboard-data', getDashboardData);
 
 export default router;

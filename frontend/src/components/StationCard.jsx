@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import api from "../services/api";
 
 const Stat = ({label,value}) => (
@@ -46,13 +47,17 @@ const StationCard = ({ station,onEdit }) => {
             
             <div className="border-t my-4"></div>
 
-            {loading ? <p>Loading stats...</p> : stats && (
-                 <div className="grid grid-cols-3 gap-4">
-                    <Stat label="Vehicles" value={`${stats.availableVehicles} / ${stats.totalVehicles}`} />
-                    <Stat label="Active Rides" value={stats.activeRides} />
-                    <Stat label="Revenue" value={`$${stats.totalRevenue}`} />
-                </div>
-            )}
+            {loading ? (
+                    <div className="text-center py-6 text-sm text-gray-500">Loading stats...</div>
+                ) : stats ? (
+                    <div className="grid grid-cols-3 gap-4">
+                        <Stat label="Vehicles" value={`${stats.availableVehicles} / ${stats.totalVehicles}`} color="text-green-600" />
+                        <Stat label="Active Rides" value={stats.activeRides} color="text-blue-600" />
+                        <Stat label="Revenue" value={`₹${stats.totalRevenue}`} color="text-purple-600" />
+                    </div>
+                ) : (
+                    <p className="text-center py-6 text-sm text-red-500">Could not load station stats.</p>
+                )}
         </div> 
     );
 };

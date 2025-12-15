@@ -33,11 +33,12 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
           <Route element={<StationMasterRoute />}>
-            <Route path="/admin/dashboard" element={<StationMasterDashboard />} />
+            <Route path="/dashboard" element={<StationMasterDashboard />} />
           </Route>
           <Route element={<SuperAdminRoute />}>
             <Route path="/super-admin" element={<SuperAdminDashboard />} />
           </Route>
+          <Route path="*" element={<h1>404 - Not Found</h1>} />
         </Routes>
       </main>
     </div>

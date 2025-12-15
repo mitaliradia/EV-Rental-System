@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext.jsx"
 import api from "../services/api.js"
-import { supportsEventListenerOptions } from "chart.js/helpers"
 
 export default function LoginPage() {
   const { setAuthUser } = useAuth()
@@ -29,7 +28,7 @@ export default function LoginPage() {
       const {data} = await api.post('/auth/login',{email,password});
       setAuthUser(data);
       if(data.role==='station-master'){
-        navigate('/admin/dashboard');
+        navigate('/dashboard');
       }
       else{
         navigate('/profile');

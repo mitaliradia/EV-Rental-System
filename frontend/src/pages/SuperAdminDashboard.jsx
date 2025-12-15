@@ -1,77 +1,41 @@
-import { useState, useEffect } from 'react';
-import api from '../services/api';
-import StationCard from '../components/super-admin/StationCard'; // We will create this
-import StationModal from '../components/super-admin/StationModal'; // We will create this
-import UserManagement from '../components/super-admin/UserManagement'; // We will create this
+import { useState } from 'react';
+import StationManager from '../components/super-admin/StationManager';
+import UserRoleManager from '../components/super-admin/UserRoleManager';
 
 const SuperAdminDashboard = () => {
-    const [stations, setStations] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [isStationModalOpen, setIsStationModalOpen] = useState(false);
-    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-    const [selectedStation, setSelectedStation] = useState(null); // For editing a station
+    const [activeTab, setActiveTab] = useState('stations');
 
-    const fetchStations = async () => {
-        setLoading(true);
-        try {
-            const { data } = await api.get('/super-admin/stations');
-            setStations(data);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchStations();
-    }, []);
-
-    const handleEditStation = (station) => {
-        setSelectedStation(station);
-        setIsStationModalOpen(true);
-    };
-
-    const handleAddNewStation = () => {
-        setSelectedStation(null); // Ensure we're in "add" mode
-        setIsStationModalOpen(true);
-    };
+    const tabs = [
+        { id: 'stations', label: 'Station Management' },
+        { id: 'roles', label: 'User Role Assignments' },
+    ];
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-4xl font-bold text-gray-800">Super Admin Panel</h1>
-                <div className="space-x-4">
-                    <button onClick={handleAddNewStation} className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">
-                        + Add New Station
-                    </button>
-                    <button onClick={() => setIsUserModalOpen(true)} className="px-4 py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-700">
-                        Manage Users
-                    </button>
-                </div>
+            <h1 className="text-4xl font-bold text-gray-800 mb-8">Super Admin Panel</h1>
+            
+            <div className="border-b border-gray-200 mb-6">
+                <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`${
+                                activeTab === tab.id
+                                    ? 'border-indigo-500 text-indigo-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </nav>
             </div>
 
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Stations Overview</h2>
-            {loading ? <p>Loading stations...</p> : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {stations.map(station => (
-                        <StationCard key={station._id} station={station} onEdit={handleEditStation} />
-                    ))}
-                </div>
-            )}
-            
-            {/* Modals for Editing/Adding */}
-            {isStationModalOpen && (
-                <StationModal 
-                    station={selectedStation}
-                    onClose={() => setIsStationModalOpen(false)}
-                    onSuccess={fetchStations} // Refresh list on success
-                />
-            )}
-
-            {isUserModalOpen && (
-                <UserManagement 
-                    onClose={() => setIsUserModalOpen(false)}
-                />
-            )}
+            <div>
+                {activeTab === 'stations' && <StationManager />}
+                {activeTab === 'roles' && <UserRoleManager />}
+            </div>
         </div>
     );
 };

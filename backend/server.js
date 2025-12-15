@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-import vehicleRoutes from './routes/vehicleRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import superAdminRoutes from './routes/superAdminRoutes.js';
