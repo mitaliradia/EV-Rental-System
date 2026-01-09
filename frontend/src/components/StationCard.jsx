@@ -1,33 +1,23 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { Link } from "react-router-dom";
 
-const Stat = ({label,value}) => (
+const Stat = ({label,value,color='text-gray-800'}) => (
     <div className="text-center">
-        <p className="text-2xl font-bold text-gray-800">{value}</p>
+        <p className={`text-2xl font-bold ${color}`}>{value}</p>
         <p className="text-xs text-gray-500 uppercase tracking-wider">{label}</p>
     </div>
 );
 
-const StationCard = ({ station,onEdit }) => {
-    const [stats,setStats] = useState(null);
-    const [loading,setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchDetails = async () => {
-            try{
-                const {data} = await api.get(`/super-admin/stations/${station._id}`);
-                setStats(data.stats);
-            } catch(error) {
-                console.error("Failed to fetch station stats",error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchDetails();
-    }, [station._id]);
+const StationCard = ({ stationData }) => {
+    // Destructure the station and stats from the single prop
+    const { stats, ...station } = stationData;
 
     return (
-       <div className="bg-white rounded-xl shadow-lg p-6">
+        <Link 
+            to={`/super-admin/station/${station._id}`}
+            className="block bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition-all"
+        >
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="text-xl font-bold text-gray-900">{station.name}</h3>
@@ -42,23 +32,17 @@ const StationCard = ({ station,onEdit }) => {
                         </p>
                     )}
                 </div>
-                <button onClick={() => onEdit(station)} className="text-xs text-indigo-600 hover:text-indigo-800">Edit</button>
             </div>
             
-            <div className="border-t my-4"></div>
-
-            {loading ? (
-                    <div className="text-center py-6 text-sm text-gray-500">Loading stats...</div>
-                ) : stats ? (
-                    <div className="grid grid-cols-3 gap-4">
-                        <Stat label="Vehicles" value={`${stats.availableVehicles} / ${stats.totalVehicles}`} color="text-green-600" />
-                        <Stat label="Active Rides" value={stats.activeRides} color="text-blue-600" />
-                        <Stat label="Revenue" value={`₹${stats.totalRevenue}`} color="text-purple-600" />
-                    </div>
-                ) : (
-                    <p className="text-center py-6 text-sm text-red-500">Could not load station stats.</p>
-                )}
-        </div> 
+            <div className="border-t pt-4">
+                <div className="grid grid-cols-3 gap-4">
+                    <Stat label="Vehicles" value={`${stats.availableVehicles} / ${stats.totalVehicles}`} color="text-green-600" />
+                    <Stat label="Active Rides" value={stats.activeRides} color="text-blue-600" />
+                    <Stat label="Revenue" value={`₹${stats.totalRevenue?.toFixed(2) || '0.00'}`} color="text-purple-600" />
+                </div>
+            </div>
+        
+        </Link>
     );
 };
 

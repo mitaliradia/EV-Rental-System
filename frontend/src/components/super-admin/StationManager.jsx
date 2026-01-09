@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import api from "../../services/api";
 import StationCard from "../StationCard";
+import StationModal from "./StationModal";
 
 
 const StationManager = () => {
@@ -9,15 +10,19 @@ const StationManager = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStation, setSelectedStation] = useState(null);
 
-    const fetchStations = async () => {
+    const fetchStationsOverview = async () => {
         setLoading(true);
         try {
-            const { data } = await api.get('/super-admin/stations');
+            // ONLY ONE API CALL is needed now
+            const { data } = await api.get('/super-admin/stations/overview');
             setStations(data);
-        } finally { setLoading(false); }
+        } catch(error) {
+            console.error("Failed to fetch stations overview",error);
+        }
+         finally { setLoading(false); }
     };
 
-    useEffect(() => { fetchStations(); }, []);
+    useEffect(() => { fetchStationsOverview(); }, []);
 
     const handleEdit = (station) => {
         setSelectedStation(station);
@@ -31,7 +36,7 @@ const StationManager = () => {
 
     const handleSuccess = () => {
         setIsModalOpen(false);
-        fetchStations(); // Refresh the list after adding/editing
+        fetchStationsOverview(); // Refresh the list after adding/editing
     };
 
     if (loading) return <p>Loading stations...</p>;
@@ -47,8 +52,8 @@ const StationManager = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {stations.length > 0 ? (
-                    stations.map(station => (
-                        <StationCard key={station._id} station={station} onEdit={handleEdit} />
+                    stations.map(stationWithStats => (
+                        <StationCard key={stationWithStats._id} stationData={stationWithStats} onEdit={() => handleEdit(stationWithStats)} />
                     ))
                 ) : (
                     <p className="text-gray-500 col-span-full">No stations have been created yet.</p>

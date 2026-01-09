@@ -1,5 +1,4 @@
 import Booking from '../models/Booking.js';
-import User from '../models/User.js';
 import Vehicle from '../models/Vehicle.js';
 import Station from '../models/Station.js';
 
@@ -7,25 +6,25 @@ const getStationFilter = (user) => {
     return user.role === 'super-admin' ? {} : { station: user.station };
 };
 
-export const getKycRequests = async (req, res) => {
-    const stationFilter = getStationFilter(req.user);
-    const users = await User.find({ ...stationFilter, 'kyc.status': 'pending' }).select('-password');
-    res.json(users);
-};
+// export const getKycRequests = async (req, res) => {
+//     const stationFilter = getStationFilter(req.user);
+//     const users = await User.find({ ...stationFilter, 'kyc.status': 'pending' }).select('-password');
+//     res.json(users);
+// };
 
-export const updateKycStatus = async (req, res) => {
-    const { userId } = req.params;
-    const { status, reason } = req.body;
-    const user = await User.findById(userId);
-    if (user) {
-        user.kyc.status = status;
-        user.kyc.rejectionReason = status === 'rejected' ? reason : '';
-        await user.save();
-        res.json({ message: 'KYC status updated' });
-    } else {
-        res.status(404).json({ message: 'User not found' });
-    }
-};
+// export const updateKycStatus = async (req, res) => {
+//     const { userId } = req.params;
+//     const { status, reason } = req.body;
+//     const user = await User.findById(userId);
+//     if (user) {
+//         user.kyc.status = status;
+//         user.kyc.rejectionReason = status === 'rejected' ? reason : '';
+//         await user.save();
+//         res.json({ message: 'KYC status updated' });
+//     } else {
+//         res.status(404).json({ message: 'User not found' });
+//     }
+// };
 
 export const getPendingBookings = async(req,res) => {
     const stationFilter = getStationFilter(req.user);
@@ -36,16 +35,69 @@ export const getPendingBookings = async(req,res) => {
 }
 
 export const updateBookingStatus = async (req, res) => {
+    try{
     const booking = await Booking.findById(req.params.id);
-    if (booking) {
-        booking.status = req.body.status;
-        if (req.body.status === 'completed' || req.body.status === 'cancelled') {
-            await Vehicle.findByIdAndUpdate(booking.vehicle, { status: 'available', availableAfter: null });
+    if(!booking){
+        return res.status(404).json({message:'Booking not found'});
+    }
+    const newStatus=req.body.status;
+
+    //A master can cancel almost any ride.
+    if(newStatus==='cancelled'){
+        // Check if the ride isn't already finished
+        if(booking.status==='completed'){
+            return res.status(400).json({message:'Cannot cancel a completed ride'});
         }
-        await booking.save();
-        res.json({ message: 'Booking status updated' });
-    } else {
-        res.status(404).json({ message: 'Booking not found' });
+        booking.status='cancelled';
+        //Free up the vehicle
+        await Vehicle.findByIdAndUpdate(booking.vehicle,{status:'available',availableAfter: null});
+    }
+    // Only a 'confirmed' booking can become 'active'
+    else if(newStatus==='active' && booking.status==='confirmed'){
+        booking.status='active';
+    }
+    // Only an 'active' booking can become 'completed'
+    else if(newStatus==='completed' && booking.status==='active'){
+        booking.status='completed';
+
+        // Free up the vehicle
+        await Vehicle.findByIdAndUpdate(booking.vehicle,{status: 'available',availableAfter:null});
+    }
+    else if(newStatus==='confirmed' && booking.status==='pending-confirmation'){
+        booking.status='confirmed';
+    }
+    else{
+        return res.status(400).json({message:`Invalid status transition from ${booking.status} to ${newStatus}`});
+    }
+    
+   
+    await booking.save();
+
+    const io = req.io; // Get the io instance from the request
+    const userId = booking.user.toString(); // Get the ID of the user who made the booking
+    const stationId = booking.station.toString();
+
+    //Emit an event to this user's specific room
+    io.to(userId).emit('booking_update',{
+        bookingId: booking._id,
+        newStatus: booking.status,
+        message: `Your booking status has been updated to ${booking.status}.`
+    })
+
+    //Notify all admins connected to this station's room 
+    io.to(`station_${stationId}`).emit('dashboard_refresh',{
+        message: `A booking was updated at your station. Please refresh.`
+    });
+
+    //Notify all connected super admins
+    io.to('super_admin_room').emit('dashboard_refresh',{
+        message: 'A booking was updated somewhere in the system.'
+    });
+    
+    res.json({ message: `Booking status updated to ${newStatus}` });
+    
+    } catch(error){
+        res.status(500).json({message:'Server Error'});
     }
 };
 
@@ -68,15 +120,15 @@ export const getDashboardData = async (req, res) => {
         const [
             station,
             vehicles,
-            pendingKyc,
             pendingBookings,
+            confirmedBookings,
             activeRides
         ] = await Promise.all([
             Station.findById(stationId),
             Vehicle.find({ station: stationId }),
-            User.countDocuments({ station: stationId, 'kyc.status': 'pending' }),
-            Booking.find({ station: stationId, status: 'pending-approval' }).populate('user vehicle'),
-            Booking.find({ station: stationId, status: 'active' }).populate('user vehicle'),
+            Booking.find({ station: stationId, status: 'pending-confirmation' }).populate('user','name email').populate('vehicle','modelName'),
+            Booking.find({station:stationId,status:'confirmed'}).populate('user','name email').populate('vehicle','modelName'),
+            Booking.find({ station: stationId, status: 'active' }).populate('user','name email').populate('vehicle','modelName'),
         ]);
 
         if (!station) return res.status(404).json({ message: 'Assigned station not found.' });
@@ -84,15 +136,16 @@ export const getDashboardData = async (req, res) => {
         res.json({
             stationName: station.name,
             stats: {
-                totalVehicles: vehicles.length,
-                availableVehicles: vehicles.filter(v => v.status === 'available').length,
-                pendingKycCount: pendingKyc,
-                pendingBookingsCount: pendingBookings.length,
-                activeRidesCount: activeRides.length,
+                totalVehicles: vehicles?.length || 0,
+                availableVehicles: vehicles?.filter(v => v.status === 'available').length || 0,
+                pendingBookingsCount: pendingBookings?.length || 0,
+                confirmedBookingsCount: confirmedBookings?.length ?? 0, 
+                activeRidesCount: activeRides?.length || 0,
             },
-            vehicles, // Full list of vehicles at the station
-            pendingBookings, // Full list of pending bookings
-            activeRides, // Full list of active rides
+            vehicles: vehicles || [], // Full list of vehicles at the station
+            pendingBookings: pendingBookings || [], // Full list of pending bookings
+            confirmedBookings: confirmedBookings ?? [],
+            activeRides: activeRides || [], // Full list of active rides
         });
 
     } catch (error) {

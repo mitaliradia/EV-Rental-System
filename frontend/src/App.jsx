@@ -13,9 +13,10 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import StationMasterDashboard from './pages/StationMasterDashboard';
 import VehiclesPage from './pages/VehiclesPage';
-import StationMasterRoute from './components/stationMasterRoute';
 import SuperAdminRoute from './components/superAdminRoute';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import StationDetailPage from './pages/StationDetailPage';
+import StationMasterRoute from './components/StationMasterRoute';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           </Route>
           <Route element={<SuperAdminRoute />}>
             <Route path="/super-admin" element={<SuperAdminDashboard />} />
+            <Route path="/super-admin/station/:id" element={<StationDetailPage />} />
           </Route>
           <Route path="*" element={<h1>404 - Not Found</h1>} />
         </Routes>

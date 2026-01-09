@@ -36,18 +36,22 @@ const Navbar = () => {
 
                     <div className="flex items-center space-x-4">
                     {authUser ? (<>
+                        <span className="hidden sm:block text-gray-700 font-medium">
+                            Welcome, {authUser.name}
+                        </span>
                         {authUser.role === 'user' && (
                                     <Link to="/profile" className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                                         My Profile
                                     </Link>
                         )}
                         {authUser.role === 'station-master' && <Link to="/dashboard">My Dashboard</Link>}
-                        {authUser.role === 'super-admin' && <Link to="/super-admin">Super Admin</Link>}
-                        <Link to="/profile">Profile</Link>
-                        <button onClick={handleLogout}>Logout</button>
+                        {authUser.role === 'super-admin' && <Link to="/super-admin">Super Admin Panel</Link>}
+                        <button onClick={handleLogout} title="Logout" className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-600">
+                                    Logout
+                                </button>
                     </>) : (<>
-                        <Link to="/login">Login</Link>
-                        <Link to="/register">Register</Link>
+                        <Link to="/login" className="text-gray-600 hover:text-indigo-600">Login</Link>
+                        <Link to="/register" className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">Register</Link>
                     </>)}
                 </div>
                 </div>

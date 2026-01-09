@@ -7,11 +7,6 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { type: String, enum: ['user', 'station-master','super-admin'], default: 'user' },
     station: { type : mongoose.Schema.Types.ObjectId, ref: 'Station', required: false},
-    kyc: {
-        documentPath: { type: String, default: '' },
-        status: { type: String, enum: ['not-submitted', 'pending', 'approved', 'rejected'], default: 'not-submitted' },
-        rejectionReason: { type: String, default: '' },
-    },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

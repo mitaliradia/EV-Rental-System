@@ -27,11 +27,17 @@ export default function LoginPage() {
     try {
       const {data} = await api.post('/auth/login',{email,password});
       setAuthUser(data);
-      if(data.role==='station-master'){
-        navigate('/dashboard');
-      }
-      else{
-        navigate('/profile');
+      switch (data.role) {
+        case 'super-admin':
+          navigate('/super-admin'); // Correct: Sends Super Admin to their panel
+          break;
+        case 'station-master':
+          navigate('/dashboard'); // Correct: Sends Station Master to their panel
+          break;
+        case 'user':
+          default:
+          navigate('/profile'); // Correct: Sends regular users to their profile
+          break;
       }
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed.")

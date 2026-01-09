@@ -45,12 +45,13 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
       setSubmitting(true);
       await api.post("/bookings", {
         vehicleId: vehicle._id,
+        stationId: vehicle.station,
         startTime: start,
         endTime: end,
         totalCost: totalCost,
       })
-      setSuccess("Booking request submitted! You will be redirected shortly.");
-      setTimeout(() => onBookingSuccess(), 1500);
+      setSuccess("Booking request submitted!The station master has 15 minutes to confirm. You will be redirected shortly.");
+      setTimeout(() => onBookingSuccess(), 2500);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to submit booking.")
     } finally {
@@ -81,7 +82,7 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
           <div className="border-t pt-4">
             <div className="flex justify-between items-center font-bold text-lg text-gray-800">
                 <span>Total Cost:</span>
-                <span>${totalCost}</span>
+                <span>₹{totalCost}</span>
             </div>
              <p className="text-xs text-gray-500 text-right">Calculated based on ${vehicle.pricePerHour}/hr</p>
           </div>
