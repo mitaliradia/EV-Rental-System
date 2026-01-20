@@ -1,4 +1,7 @@
 import Vehicle from '../models/Vehicle.js';
+import Station from '../models/Station.js';
+import User from '../models/User.js';
+import { createNotificationUtil } from './notificationController.js';
 
 export const getAvailableVehicles = async (req, res) => {
     try {
@@ -22,8 +25,26 @@ export const addVehicle = async(req,res) => {
             pricePerHour,
             station: stationId
         });
+        
+        // Notify station masters about new vehicle
+        const [station, stationMasters] = await Promise.all([
+            Station.findById(stationId),
+            User.find({ station: stationId, role: 'station-master' })
+        ]);
+        
+        for (const master of stationMasters) {
+            await createNotificationUtil(
+                master._id,
+                'New Vehicle Added',
+                `${modelName} has been added to ${station.name} by administration.`,
+                'system',
+                'medium'
+            );
+        }
+        
         res.status(201).json(vehicle);
     } catch(error){
+        console.error('Error adding vehicle:', error);
         res.status(500).json({message: 'Server error adding vehicle'});
     }
 }

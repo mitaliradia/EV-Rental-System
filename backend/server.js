@@ -9,13 +9,23 @@ import { fileURLToPath } from 'url';
 import http from 'http';
 import {Server} from 'socket.io';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import superAdminRoutes from './routes/superAdminRoutes.js';
 import stationMasterRoutes from './routes/stationMasterRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import otpRoutes from './routes/otpRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import favoriteRoutes from './routes/favoriteRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 import { startCronJobs } from './jobs/cronJobs.js';
+import { startPaymentTimeoutJob } from './jobs/paymentTimeout.js';
 
 dotenv.config();
 
@@ -28,12 +38,15 @@ const app = express();
 //Create an HTTP server from the Express app
 const server = http.createServer(app);
 
-// Create a whitelist of all allowed frontend origins
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:5174', // Add any other ports you might use
-    'http://localhost:5175',
-];
+// Read the frontend URL from environment variables.
+// Default to localhost for development if the variable isn't set.
+const clientURL = process.env.CLIENT_URL || 'http://localhost:5173';
+
+// In local development, we still want to allow multiple ports for testing.
+// In production, we'll only have one client URL.
+const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? [clientURL]
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -53,16 +66,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Serve static images
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+
+// --- UPDATE THE SOCKET.IO CORS CONFIGURATION AS WELL ---
 const io = new Server(server, {
     cors: {
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        methods: ["GET", "POST"]
+        origin: allowedOrigins, // We can directly use the array here
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -72,12 +85,21 @@ app.use((req,res,next) => {
     next();
 })
 
+// Make io globally available for cron jobs
+global.io = io;
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/public',publicRoutes);
 app.use('/api/station-master', stationMasterRoutes);
 app.use('/api/bookings',bookingRoutes);
 app.use('/api/super-admin',superAdminRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/otp', otpRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/payments', paymentRoutes);
 
 //Socket.IO connection logic
 io.on('connection',(socket)=>{
@@ -87,6 +109,7 @@ io.on('connection',(socket)=>{
     socket.on('joinUserRoom',(userId) => {
         socket.join(userId);
         console.log(`Socket ${socket.id} joined room for user ID: ${userId}`);
+        console.log('Current rooms for socket:', socket.rooms);
     });
 
     socket.on('joinAdminRooms',(user)=>{
@@ -94,7 +117,7 @@ io.on('connection',(socket)=>{
             socket.join('super_admin_room');
             console.log(`Socket ${socket.id} joined SUPER ADMIN room`);
         }
-        if (user.role === 'station-master') {
+        if (user.role === 'station-master' && user.station) {
             socket.join(`station_${user.station}`);
             console.log(`Socket ${socket.id} joined room for station: ${user.station}`);
         }
@@ -111,4 +134,6 @@ server.listen(PORT, () => {
 
     //2. Start the scheduled jobs after the server is successfully running
     startCronJobs();
+    startPaymentTimeoutJob();
 });
+

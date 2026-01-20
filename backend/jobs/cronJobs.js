@@ -1,43 +1,57 @@
 import cron from 'node-cron';
 import Booking from '../models/Booking.js';
-import Vehicle from '../models/Vehicle.js';
+import User from '../models/User.js';
+import { createNotificationUtil } from '../controllers/notificationController.js';
 
-// --- JOB 1: Expire unconfirmed booking requests ---
-// This job runs every 5 minutes.
-const expireUnconfirmedBookings=()=>{
-    cron.schedule('*/5 * * * *',async()=>{
-        console.log('Running job: Expire Unconfirmed Bookings...');
-
-        // Find bookings that are 'pending-confirmation' and were created more than 15 minutes ago.
-        const fifteenMinutesAgo=new Date(Date.now()-15*60*100);
-        try{
-            const expiredBookings=await Booking.find({
-                status:'pending-confirmation',
-                createdAt: {$lte:fifteenMinutesAgo}
-            });
-
-            if(expiredBookings.length>0){
-                console.log(`Found ${expiredBookings.length} unconfirmed bookings to cancel.`);
-                for(const booking of expiredBookings){
-                    booking.status='cancelled';
-                    await booking.save();
-
-                    // Make the vehicle available again
-                    await Vehicle.findByIdAndUpdate(booking.vehicle, {
-                        status: 'available',
-                        availableAfter: null
-                    });
-                } 
+export const startCronJobs = () => {
+    // Check for overdue rides every 5 minutes
+    cron.schedule('*/5 * * * *', async () => {
+        try {
+            const now = new Date();
+            
+            // Find overdue active rides
+            const overdueRides = await Booking.find({
+                status: 'active',
+                endTime: { $lt: now }
+            }).populate('user vehicle station');
+            
+            for (const ride of overdueRides) {
+                // Notify station master
+                const stationMaster = await User.findOne({
+                    station: ride.station._id,
+                    role: 'station-master'
+                });
+                
+                if (stationMaster) {
+                    // Create notification for station master
+                    await createNotificationUtil(
+                        stationMaster._id,
+                        'Overdue Ride Alert',
+                        `${ride.user.name}'s ride with ${ride.vehicle.modelName} is overdue. Please contact the customer.`,
+                        'reminder',
+                        'high',
+                        {},
+                        global.io
+                    );
+                }
+                
+                // Notify user
+                await createNotificationUtil(
+                    ride.user._id,
+                    'Ride Overdue',
+                    `Your ride is overdue. Please return the vehicle to avoid additional charges.`,
+                    'reminder',
+                    'high',
+                    {},
+                    global.io
+                );
             }
-        }catch(error){
-            console.error('Error in expireUnconfirmedBookings job:', error);
+            
+            console.log(`Checked ${overdueRides.length} overdue rides`);
+        } catch (error) {
+            console.error('Error in overdue rides cron job:', error);
         }
-    })
-}
-
-
-//Function to start all cron jobs
-export const startCronJobs=()=>{
-    expireUnconfirmedBookings();
-    console.log('Cron job for booking expirations have been started.');
-}
+    });
+    
+    console.log('Cron jobs started');
+};

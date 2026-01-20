@@ -4,9 +4,13 @@ import bcrypt from 'bcryptjs';
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ['user', 'station-master','super-admin'], default: 'user' },
     station: { type : mongoose.Schema.Types.ObjectId, ref: 'Station', required: false},
+    isPhoneVerified: { type: Boolean, default: false },
+    phoneOTP: { type: String },
+    phoneOTPExpires: { type: Date },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

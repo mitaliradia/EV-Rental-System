@@ -1,6 +1,29 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
+    const { authUser } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (authUser) {
+            if (authUser.role === 'super-admin') {
+                navigate('/super-admin');
+            } else if (authUser.role === 'station-master') {
+                navigate('/dashboard');
+            } else if (authUser.role === 'user') {
+                navigate('/profile');
+            }
+        }
+    }, [authUser, navigate]);
+
+    // Only show homepage for non-authenticated users
+    if (authUser) {
+        return null; // Will redirect based on role
+    }
+
     return (
         <div className="relative text-center py-24 sm:py-32 lg:py-48 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-90"></div>

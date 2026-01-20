@@ -1,54 +1,80 @@
-import { useState } from "react";
-import { useEffect } from "react";
-import { createContext } from "react";
-import { useContext } from "react";
-import { useAuth } from "./AuthContext";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
-import { useNavigate } from "react-router-dom";
+import { useAuth } from './AuthContext';
+import api from '../services/api'; // We need this for the logout call
 
 const SocketContext = createContext();
-
 export const useSocket = () => useContext(SocketContext);
+
 export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
-    const { authUser,setAuthUser } = useAuth();
+    const { authUser, setAuthUser } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Only connect if there is a logged-in user
         if (authUser) {
-            // Establish connection to the backend server
-            const newSocket = io('http://localhost:5000');
-            setSocket(newSocket);
+            console.log('Connecting to socket for user:', authUser._id);
+            const newSocket = io('http://localhost:5000', {
+                transports: ['websocket', 'polling']
+            });
             
-            // Join the user-specific room
-            newSocket.emit('joinUserRoom', authUser._id);
-            newSocket.emit('joinAdminRooms', authUser); // Send the whole user object
+            newSocket.on('connect', () => {
+                console.log('Socket connected:', newSocket.id);
+                newSocket.emit('joinUserRoom', authUser._id);
+                newSocket.emit('joinAdminRooms', authUser);
+            });
+            
+            newSocket.on('disconnect', () => {
+                console.log('Socket disconnected');
+            });
+            
+            newSocket.on('connect_error', (error) => {
+                console.error('Socket connection error:', error);
+            });
+            
+            setSocket(newSocket);
 
-            newSocket.on('role_changed',(data)=>{
+            const handleRoleChange = (data) => {
                 alert(data.message);
-
-                //Force a full logout to clear all state and cookies
-                //This is the safest way to handle a permission change.
-                const logout=async()=>{
+                const logout = async () => {
                     await api.post('/auth/logout');
                     setAuthUser(null);
                     navigate('/login');
-                }
+                };
                 logout();
-            })
-
-            // Clean up the connection when the component unmounts or user logs out
-            return () => newSocket.close();
+            };
             
+            // --- ADD THE NEW EVENT LISTENER ---
+            const handleForceLogout = (data) => {
+                alert(data.message);
+                // We can reuse the same logout logic
+                const logout = async () => {
+                    await api.post('/auth/logout');
+                    setAuthUser(null);
+                    navigate('/login');
+                };
+                logout();
+            };
+
+            // Listen for both events
+            newSocket.on('role_changed', handleRoleChange);
+            newSocket.on('force_logout', handleForceLogout);
+            // ------------------------------------
+
+            return () => {
+                // Clean up both listeners
+                newSocket.off('role_changed', handleRoleChange);
+                newSocket.off('force_logout', handleForceLogout);
+                newSocket.close();
+            }
         } else {
-            // If there's no user, disconnect any existing socket
             if (socket) {
                 socket.close();
                 setSocket(null);
             }
         }
-    }, [authUser,setAuthUser,navigate]); // This effect re-runs whenever the user logs in or out
+    }, [authUser, setAuthUser, navigate]);
 
     return (
         <SocketContext.Provider value={socket}>
@@ -56,4 +82,3 @@ export const SocketProvider = ({ children }) => {
         </SocketContext.Provider>
     );
 };
-
