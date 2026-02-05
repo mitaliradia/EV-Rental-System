@@ -1,153 +1,132 @@
-# EVForce - Electric Vehicle Rental Management System
+# EVGo - Electric Vehicle Rental Management System
 
-A comprehensive full-stack web application for managing electric vehicle rentals with real-time notifications, role-based dashboards, and integrated payment processing.
+> A comprehensive full-stack web application for managing electric vehicle rentals with real-time notifications, role-based dashboards, and integrated payment processing.
 
-## 🚗 Features
+## Features
 
 ### Core Functionality
-- **Multi-Role System**: Customer, Station Master, and Super Admin dashboards
-- **Vehicle Management**: Complete CRUD operations for EV fleet management
-- **Booking System**: Real-time booking with status tracking and history
-- **Payment Integration**: Secure payments via Razorpay with transaction management
-- **Real-time Notifications**: Socket.IO powered instant alerts across all user roles
-- **Review System**: Customer feedback and rating system for vehicles
+- Multi-Role System: Customer, Station Master, and Super Admin dashboards
+- Vehicle Management: Complete CRUD operations for EV fleet management
+- Booking System: Real-time booking with status tracking and history
+- Payment Integration: Secure payments via Razorpay with transaction management
+- Real-time Notifications: Socket.IO powered instant alerts across all user roles
+- Review System: Customer feedback and rating system for vehicles
 
 ### Advanced Features
-- **Dark Mode Support**: Comprehensive dark/light theme toggle
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **File Upload**: KYC document upload with Multer
-- **Email Integration**: Automated email notifications via Nodemailer
-- **Automated Tasks**: Cron jobs for overdue bookings and system maintenance
-- **Data Cleanup**: MongoDB TTL indexing for automatic notification cleanup
+- Dark Mode Support: Comprehensive dark/light theme toggle
+- Responsive Design: Mobile-first approach with Tailwind CSS
+- File Upload: KYC document upload with Multer
+- Email Integration: Automated email notifications via Nodemailer
+- Automated Tasks: Cron jobs for overdue bookings and system maintenance
+- Data Cleanup: MongoDB TTL indexing for automatic notification cleanup
 
-## 🛠️ Tech Stack
+## Technology Stack
 
-**Frontend:**
+### Frontend
 - React.js with Vite
 - Tailwind CSS
 - Socket.IO Client
 - Axios
 - React Router DOM
 
-**Backend:**
-- Node.js & Express.js
-- MongoDB with Mongoose ODM
-- Socket.IO for real-time communication
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose ODM
+- Socket.IO
 - JWT Authentication
-- Bcrypt.js for password hashing
+- bcrypt.js
 
-**Additional Services:**
+### Additional Services
 - Razorpay Payment Gateway
-- Nodemailer for email services
-- Multer for file uploads
-- Node-Cron for scheduled tasks
+- Nodemailer
+- Multer
+- Node-Cron
 
-## 📁 Project Structure
-
-```
-EV-Rental-System/
-├── backend/
-│   ├── controllers/     # Route controllers
-│   ├── models/         # MongoDB schemas
-│   ├── routes/         # API routes
-│   ├── middleware/     # Authentication middleware
-│   ├── jobs/          # Cron jobs
-│   └── uploads/       # File upload directory
-├── frontend/
-│   ├── src/
-│   │   ├── components/ # React components
-│   │   ├── pages/     # Page components
-│   │   ├── context/   # React context
-│   │   └── services/  # API services
-│   └── public/        # Static assets
-└── README.md
-```
-
-## 🚀 Installation & Setup
+## Installation and Setup
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB Atlas account or local MongoDB
-- Razorpay account for payment integration
+- Node.js v14 or higher
+- MongoDB Atlas or local MongoDB
+- Razorpay account
 
 ### Backend Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/EV-Rental-System.git
-   cd EV-Rental-System/backend
-   ```
+Clone the repository:
+```bash
+git clone https://github.com/yourusername/EV-Rental-System.git
+cd EV-Rental-System/backend
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+Install dependencies:
+```bash
+npm install
+```
 
-3. **Environment Configuration**
-   Create a `.env` file in the backend directory:
-   ```env
-   JWT_SECRET=your_jwt_secret_key
-   PORT=5000
-   MONGO_URI=your_mongodb_connection_string
-   EMAIL_USER=your_email@gmail.com
-   EMAIL_PASS=your_app_password
-   RAZORPAY_KEY_ID=your_razorpay_key_id
-   RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-   ```
+Create a .env file in the backend directory:
+```env
+JWT_SECRET=your_jwt_secret_key
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+```
 
-4. **Start the server**
-   ```bash
-   npm run dev
-   ```
+Start the backend server:
+```bash
+npm run dev
+```
 
 ### Frontend Setup
+Navigate to frontend directory:
+```bash
+cd ../frontend
+```
 
-1. **Navigate to frontend directory**
-   ```bash
-   cd ../frontend
-   ```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+Install dependencies:
+```bash
+npm install
+```
 
-3. **Environment Configuration**
-   Create a `.env` file in the frontend directory:
-   ```env
-   VITE_API_URL=http://localhost:5000
-   VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
-   ```
 
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
+Create a .env file in the frontend directory:
+```env
+VITE_API_URL=http://localhost:5000
+VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
+```
 
-## 🔧 Database Seeding
 
-To populate the database with initial data:
+Start the frontend development server:
+```bash
+npm run dev
+```
 
+### Database Seeding
+
+Import initial data:
 ```bash
 cd backend
 npm run data:import
 ```
 
-To clear the database:
 
+Clear database data:
 ```bash
 npm run data:destroy
 ```
 
-## 👥 User Roles & Access
-
+## User Roles and Access
 ### Customer
 - Browse and search vehicles
 - Make bookings and payments
 - View booking history
 - Submit reviews and ratings
 - Manage favorites
-- Real-time booking notifications
+- Receive real-time notifications
 
 ### Station Master
 - Manage assigned station vehicles
@@ -161,95 +140,59 @@ npm run data:destroy
 - Manage all vehicles and stations
 - Assign station masters
 - View system analytics
-- Monitor all transactions
+- Monitor transactions
 - System-wide notifications
 
-## 🔔 Real-time Features
+### Real-Time Features
+- Socket.IO-based instant notifications
+- Room-based user communication
+- 30-day TTL auto-cleanup for notifications
+- Cross-device real-time synchronization
 
-- **Socket.IO Integration**: Instant notifications for booking updates
-- **Room-based Communication**: User-specific notification delivery
-- **Auto-cleanup**: 30-day TTL for notification history
-- **Cross-platform Sync**: Real-time updates across all devices
+### Payment Integration
+- Razorpay secure payment gateway
+- Transaction history tracking
+- Refund management
+- Server-side payment verification
 
-## 💳 Payment Integration
+### UI and UX Features
+- Dark and light mode toggle
+- Fully responsive layout
+- Accessibility-compliant design
+- Loading states and animations
+- User-friendly error handling
 
-- **Razorpay Gateway**: Secure payment processing
-- **Transaction Tracking**: Complete payment history
-- **Refund Management**: Automated refund processing
-- **Payment Verification**: Server-side payment validation
+### Performance Optimizations
+- Database indexing and lean queries
+- Parallel processing with Promise.all
+- Efficient caching strategies
+- Code splitting
+- Image optimization
 
-## 🎨 UI/UX Features
+### Security Features
+- JWT-based authentication
+- Password hashing using bcrypt.js
+- Middleware-based route protection
+- Input validation and sanitization
+- Secure CORS configuration
 
-- **Dark Mode**: System-wide dark/light theme toggle
-- **Responsive Design**: Mobile-first responsive layout
-- **Accessibility**: WCAG compliant design
-- **Loading States**: Smooth loading animations
-- **Error Handling**: User-friendly error messages
-
-## 📊 Performance Optimizations
-
-- **Database Optimization**: Lean queries and indexing
-- **Parallel Operations**: Promise.all for concurrent operations
-- **Caching**: Efficient data caching strategies
-- **Code Splitting**: Optimized bundle sizes
-- **Image Optimization**: Compressed image assets
-
-## 🔒 Security Features
-
-- **JWT Authentication**: Secure token-based authentication
-- **Password Hashing**: Bcrypt.js for password security
-- **Route Protection**: Middleware-based route protection
-- **Input Validation**: Server-side input sanitization
-- **CORS Configuration**: Secure cross-origin requests
-
-## 📱 API Endpoints
-
+## API Endpoints
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/auth/logout
 
 ### Vehicles
-- `GET /api/vehicles` - Get all vehicles
-- `POST /api/vehicles` - Add new vehicle (Admin)
-- `PUT /api/vehicles/:id` - Update vehicle
-- `DELETE /api/vehicles/:id` - Delete vehicle
+- GET /api/vehicles
+- POST /api/vehicles
+- PUT /api/vehicles/:id
+- DELETE /api/vehicles/:id
 
 ### Bookings
-- `POST /api/bookings` - Create booking
-- `GET /api/bookings/user` - Get user bookings
-- `PUT /api/bookings/:id` - Update booking status
+- POST /api/bookings
+- GET /api/bookings/user
+- PUT /api/bookings/:id
 
 ### Payments
-- `POST /api/payments/create-order` - Create Razorpay order
-- `POST /api/payments/verify` - Verify payment
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-
-## 🙏 Acknowledgments
-
-- React.js community for excellent documentation
-- MongoDB for flexible database solutions
-- Socket.IO for real-time communication
-- Tailwind CSS for utility-first styling
-- Razorpay for seamless payment integration
-
----
-
-⭐ Star this repository if you found it helpful!
+- POST /api/payments/create-order
+- POST /api/payments/verify
