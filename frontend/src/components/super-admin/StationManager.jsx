@@ -88,9 +88,8 @@ const StationManager = () => {
             {/* Header with Actions */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center space-x-2">
-                        <span>🏢</span>
-                        <span>Stations Overview</span>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+                        Stations Overview
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Manage and monitor all charging stations across the network
@@ -102,7 +101,7 @@ const StationManager = () => {
                             onClick={clearFilters} 
                             className="px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors duration-200 border border-red-200 dark:border-red-700"
                         >
-                            🌪️ Clear Filters
+                            Clear Filters
                         </button>
                     )}
                     <button 
@@ -119,9 +118,8 @@ const StationManager = () => {
             
             {/* Enhanced Filters */}
             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 space-y-4">
-                <h4 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center space-x-2">
-                    <span>🔍</span>
-                    <span>Filters & Search</span>
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
+                    Filters & Search
                 </h4>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -193,7 +191,7 @@ const StationManager = () => {
                                 onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
                                 className="px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
                             >
-                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                                {sortConfig.direction === 'asc' ? 'ASC' : 'DESC'}
                             </button>
                         </div>
                     </div>

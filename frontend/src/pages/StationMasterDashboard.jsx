@@ -4,11 +4,10 @@ import { useSocket } from '../context/SocketContext';
 import ChatModal from '../components/ChatModal';
 
 // Enhanced Stat Card with modern styling
-const StatCard = ({ title, value, color, icon }) => (
+const StatCard = ({ title, value, color }) => (
     <div className={`bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700 group`}>
         <div className="flex items-center justify-between mb-3">
             <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{title}</div>
-            {icon && <div className="text-2xl text-gray-400 group-hover:text-primary-500 transition-colors duration-300">{icon}</div>}
         </div>
         <p className={`text-3xl font-bold ${color} group-hover:scale-105 transition-transform duration-300`}>{value}</p>
         <div className="mt-2 h-1 bg-gradient-to-r from-primary-400 to-accent-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -16,11 +15,10 @@ const StatCard = ({ title, value, color, icon }) => (
 );
 
 // Enhanced Table Section with modern styling
-const TableSection = ({ title, children, icon }) => (
+const TableSection = ({ title, children }) => (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
             <div className="flex items-center space-x-3">
-                {icon && <div className="text-xl text-primary-500">{icon}</div>}
                 <h3 className="text-xl font-bold text-gray-800 dark:text-white">{title}</h3>
             </div>
         </div>
@@ -135,42 +133,36 @@ const StationMasterDashboard = () => {
                     <StatCard 
                         title="Total Vehicles" 
                         value={stats.totalVehicles} 
-                        color="text-gray-900 dark:text-white" 
-                        icon="🚗"
+                        color="text-gray-900 dark:text-white"
                     />
                     <StatCard 
                         title="Available Now" 
                         value={stats.availableVehicles} 
-                        color="text-green-600 dark:text-green-400" 
-                        icon="✅"
+                        color="text-green-600 dark:text-green-400"
                     />
                     <StatCard 
                         title="Upcoming Rides" 
                         value={stats.confirmedBookingsCount} 
-                        color="text-blue-600 dark:text-blue-400" 
-                        icon="📅"
+                        color="text-blue-600 dark:text-blue-400"
                     />
                     <StatCard 
                         title="Active Rides" 
                         value={stats.activeRidesCount} 
-                        color="text-purple-600 dark:text-purple-400" 
-                        icon="🚀"
+                        color="text-purple-600 dark:text-purple-400"
                     />
                     <StatCard 
                         title="Pending Requests" 
                         value={stats.pendingBookingsCount} 
-                        color="text-orange-600 dark:text-orange-400" 
-                        icon="⏳"
+                        color="text-orange-600 dark:text-orange-400"
                     />
                     <StatCard 
                         title="Overdue Rides" 
                         value={stats.overdueRidesCount || 0} 
-                        color="text-red-600 dark:text-red-400" 
-                        icon="⚠️"
+                        color="text-red-600 dark:text-red-400"
                     />
                 </div>
 
-                <TableSection title="Pending Booking Requests" icon="📝">
+                <TableSection title="Pending Booking Requests">
                  {pendingBookings.length > 0 ? (
                     <table className="min-w-full text-sm">
                         <thead>
@@ -208,13 +200,13 @@ const StationMasterDashboard = () => {
                                                 onClick={() => handleUpdateBooking(booking._id, 'confirmed')}
                                                 className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-md"
                                             >
-                                                ✓ Confirm
+                                                Confirm
                                             </button>
                                             <button 
                                                 onClick={() => handleUpdateBooking(booking._id, 'cancelled')}
                                                 className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-200 shadow-md"
                                             >
-                                                ✕ Cancel
+                                                Cancel
                                             </button>
                                             <button 
                                                 onClick={() => {
@@ -223,7 +215,7 @@ const StationMasterDashboard = () => {
                                                 }}
                                                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md"
                                             >
-                                                💬 Chat
+                                                Chat
                                             </button>
                                         </div>
                                     </td>
@@ -233,14 +225,13 @@ const StationMasterDashboard = () => {
                     </table>
                 ) : (
                     <div className="text-center py-8">
-                        <div className="text-gray-400 text-4xl mb-4">📋</div>
                         <p className="text-gray-500 dark:text-gray-400 font-medium">No pending booking requests</p>
                         <p className="text-sm text-gray-400 dark:text-gray-500">New requests will appear here</p>
                     </div>
                 )}
                 </TableSection>
 
-                <TableSection title="Confirmed & Upcoming Rides" icon="🚗">
+                <TableSection title="Confirmed & Upcoming Rides">
                     {confirmedBookings.length > 0 ? (
                         <table className="min-w-full text-sm">
                             <thead>
@@ -276,7 +267,7 @@ const StationMasterDashboard = () => {
                                                     ? 'bg-green-100 text-green-800 border border-green-200' 
                                                     : 'bg-orange-100 text-orange-800 border border-orange-200'
                                             }`}>
-                                                {booking.paymentStatus === 'completed' ? '✅ PAID' : '⏳ PENDING'}
+                                                {booking.paymentStatus === 'completed' ? 'PAID' : 'PENDING'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -291,7 +282,7 @@ const StationMasterDashboard = () => {
                                                     }`}
                                                     title={booking.paymentStatus !== 'completed' ? 'Payment required before starting ride' : ''}
                                                 >
-                                                    🚀 Start Ride
+                                                    Start Ride
                                                 </button>
                                                 <button 
                                                     onClick={() => handleUpdateBooking(booking._id, 'cancelled')} 
@@ -306,7 +297,7 @@ const StationMasterDashboard = () => {
                                                     }}
                                                     className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold hover:from-gray-600 hover:to-gray-700 transform hover:scale-105 transition-all duration-200 shadow-md"
                                                 >
-                                                    💬 Chat
+                                                    Chat
                                                 </button>
                                             </div>
                                         </td>
@@ -316,7 +307,6 @@ const StationMasterDashboard = () => {
                         </table>
                     ) : (
                         <div className="text-center py-8">
-                            <div className="text-gray-400 text-4xl mb-4">📋</div>
                             <p className="text-gray-500 dark:text-gray-400 font-medium">No upcoming rides</p>
                             <p className="text-sm text-gray-400 dark:text-gray-500">Confirmed bookings will appear here</p>
                         </div>
@@ -324,7 +314,7 @@ const StationMasterDashboard = () => {
                 </TableSection>
 
                 {/* Enhanced Vehicles Table */}
-                <TableSection title="Fleet Overview" icon="🚗">
+                <TableSection title="Fleet Overview">
                     {vehicles.length > 0 ? (
                         <table className="min-w-full text-sm">
                             <thead>
@@ -337,26 +327,20 @@ const StationMasterDashboard = () => {
                             <tbody>
                                 {vehicles.map((v, index) => {
                                     const statusConfig = {
-                                        available: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200', icon: '✅' },
-                                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200', icon: '⏳' },
-                                        booked: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200', icon: '📅' },
-                                        maintenance: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200', icon: '🔧' }
+                                        available: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
+                                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200' },
+                                        booked: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
+                                        maintenance: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' }
                                     };
                                     const config = statusConfig[v.status] || statusConfig.available;
                                     
                                     return (
                                         <tr key={v._id} className={`${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
                                             <td className="px-6 py-4">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-xl flex items-center justify-center text-white">
-                                                        🚗
-                                                    </div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{v.modelName}</div>
-                                                </div>
+                                                <div className="font-semibold text-gray-900 dark:text-white">{v.modelName}</div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${config.bg} ${config.text} ${config.border} border`}>
-                                                    <span className="mr-1">{config.icon}</span>
                                                     {v.status.toUpperCase()}
                                                 </span>
                                             </td>
@@ -373,26 +357,22 @@ const StationMasterDashboard = () => {
                         </table>
                     ) : (
                         <div className="text-center py-8">
-                            <div className="text-gray-400 text-4xl mb-4">🚗</div>
                             <p className="text-gray-500 dark:text-gray-400 font-medium">No vehicles assigned</p>
                             <p className="text-sm text-gray-400 dark:text-gray-500">Contact super admin to add vehicles to this station</p>
                         </div>
                     )}
                 </TableSection>
                 
-                <TableSection title="Active Rides Monitor" icon="🚀">
+                <TableSection title="Active Rides Monitor">
                     {/* Enhanced Search */}
                     <div className="mb-6">
                         <div className="relative max-w-md">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <div className="text-gray-400">🔍</div>
-                            </div>
                             <input 
                                 type="text" 
                                 placeholder="Search by customer or vehicle..."
                                 value={activeRideSearch}
                                 onChange={e => setActiveRideSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                             />
                         </div>
                     </div>
@@ -421,7 +401,7 @@ const StationMasterDashboard = () => {
                                                     <div className="font-semibold text-gray-900 dark:text-white">{ride.user.name}</div>
                                                     {ride.isOverdue && (
                                                         <span className="inline-flex items-center px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full border border-red-200">
-                                                            ⚠️ OVERDUE
+                                                            OVERDUE
                                                         </span>
                                                     )}
                                                 </div>
@@ -444,7 +424,7 @@ const StationMasterDashboard = () => {
                                                     onClick={() => handleUpdateBooking(ride._id, 'completed')} 
                                                     className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-md"
                                                 >
-                                                    ✓ Complete
+                                                    Complete
                                                 </button>
                                                 <button 
                                                     onClick={() => handleUpdateBooking(ride._id, 'cancelled')} 
@@ -459,7 +439,7 @@ const StationMasterDashboard = () => {
                                                     }}
                                                     className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md"
                                                 >
-                                                    💬 Chat
+                                                    Chat
                                                 </button>
                                             </div>
                                         </td>
@@ -469,7 +449,6 @@ const StationMasterDashboard = () => {
                         </table>
                     ) : (
                         <div className="text-center py-8">
-                            <div className="text-gray-400 text-4xl mb-4">🔍</div>
                             <p className="text-gray-500 dark:text-gray-400 font-medium">
                                 {activeRideSearch ? 'No rides match your search' : 'No active rides'}
                             </p>

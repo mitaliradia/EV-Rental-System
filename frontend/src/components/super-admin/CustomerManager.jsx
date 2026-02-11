@@ -54,7 +54,6 @@ const CustomerManager = () => {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center space-x-3">
-                    <div className="text-2xl">👥</div>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Customer Directory</h3>
                 </div>
                 <div className="flex items-center gap-4">
@@ -146,7 +145,6 @@ const CustomerManager = () => {
                                 <tr>
                                     <td colSpan="4" className="px-4 py-12 text-center">
                                         <div className="flex flex-col items-center space-y-3">
-                                            <div className="text-4xl text-gray-300 dark:text-gray-600">👥</div>
                                             <p className="text-gray-500 dark:text-gray-400 font-medium">No customers found.</p>
                                         </div>
                                     </td>

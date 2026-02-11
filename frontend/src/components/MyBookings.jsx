@@ -92,16 +92,34 @@ export default function MyBookings() {
                     {booking.status.replace('-', ' ').toUpperCase()}
                   </span>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                  <div>📅 {new Date(booking.startTime).toLocaleString()} — {new Date(booking.endTime).toLocaleString()}</div>
-                  <div>💰 ₹{booking.totalCost?.toLocaleString('en-IN')}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{new Date(booking.startTime).toLocaleString()} — {new Date(booking.endTime).toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>₹{booking.totalCost?.toLocaleString('en-IN')}</span>
+                  </div>
                   {booking.paymentStatus === 'pending' && booking.paymentDeadline && (
-                    <div className="text-red-600 font-medium">
-                      ⏰ Pay within: <CountdownTimer expiryTimestamp={booking.paymentDeadline} onExpire={() => fetchBookings()} />
+                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-medium">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Payment due: <CountdownTimer expiryTimestamp={booking.paymentDeadline} onExpire={() => fetchBookings()} /></span>
                     </div>
                   )}
                   {booking.modifications?.length > 0 && (
-                    <div className="text-blue-600">🔄 Modified {booking.modifications.length} time(s)</div>
+                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>Modified {booking.modifications.length} time(s)</span>
+                    </div>
                   )}
                 </div>
               </div>

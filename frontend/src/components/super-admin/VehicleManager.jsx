@@ -109,9 +109,8 @@ const VehicleManager = () => {
         <div className="p-6 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center space-x-2">
-                        <span>🚗</span>
-                        <span>Vehicle Fleet Management</span>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+                        Vehicle Fleet Management
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Manage vehicles across all stations in your network
@@ -139,9 +138,8 @@ const VehicleManager = () => {
             
             {/* Enhanced Filters */}
             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 space-y-4">
-                <h4 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center space-x-2">
-                    <span>🔍</span>
-                    <span>Vehicle Filters</span>
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
+                    Vehicle Filters
                 </h4>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -210,7 +208,7 @@ const VehicleManager = () => {
                                 onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
                                 className="px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
                             >
-                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                                {sortConfig.direction === 'asc' ? 'ASC' : 'DESC'}
                             </button>
                         </div>
                     </div>
@@ -221,7 +219,6 @@ const VehicleManager = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                     <div className="flex items-center space-x-3">
-                        <div className="text-xl">🚗</div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white">Vehicle Fleet</h3>
                     </div>
                 </div>
@@ -284,7 +281,6 @@ const VehicleManager = () => {
                         </div>
                     ) : (
                         <div className="text-center py-12">
-                            <div className="text-gray-400 text-4xl mb-4">🚗</div>
                             <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">No vehicles found</h3>
                             <p className="text-gray-500 dark:text-gray-400">Add vehicles to start managing your fleet</p>
                         </div>
