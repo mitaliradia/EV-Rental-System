@@ -98,9 +98,9 @@ const PhoneVerification = () => {
       {step === 'phone' ? (
         <form onSubmit={sendOTP}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Phone Number</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Phone Number</label>
             <div className="flex">
-              <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
+              <span className="inline-flex items-center px-3 text-sm text-gray-900 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l-md">
                 +91
               </span>
               <input
@@ -109,18 +109,18 @@ const PhoneVerification = () => {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter 10-digit number"
                 maxLength="10"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:ring-2 focus:ring-indigo-500"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-r-md focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 required
               />
             </div>
           </div>
           
-          {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
+          {error && <div className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</div>}
           
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
+            className="w-full bg-indigo-600 dark:bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 transition-colors"
           >
             {loading ? 'Sending...' : 'Send OTP'}
           </button>
@@ -128,27 +128,27 @@ const PhoneVerification = () => {
       ) : (
         <form onSubmit={verifyOTP}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Enter OTP</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Enter OTP</label>
             <input
               type="text"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="6-digit OTP"
               maxLength="6"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 text-center text-lg tracking-widest"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 text-center text-lg tracking-widest bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               required
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               OTP sent to +91 {phone}
             </p>
           </div>
           
-          {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
+          {error && <div className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</div>}
           
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-gray-400 mb-2"
+            className="w-full bg-indigo-600 dark:bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 mb-2 transition-colors"
           >
             {loading ? 'Verifying...' : 'Verify OTP'}
           </button>
@@ -157,7 +157,7 @@ const PhoneVerification = () => {
             type="button"
             onClick={() => setStep('phone')}
             disabled={countdown > 0}
-            className="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 disabled:bg-gray-100"
+            className="w-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 transition-colors"
           >
             {countdown > 0 ? `Resend in ${countdown}s` : 'Change Number'}
           </button>

@@ -112,16 +112,16 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="p-4 border-b">
-          <h3 className="font-semibold">Book {vehicle.modelName}</h3>
-          <p className="text-sm text-gray-600">₹{vehicle.pricePerHour}/hour • Minimum 1 hour</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Book {vehicle.modelName}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">₹{vehicle.pricePerHour}/hour • Minimum 1 hour</p>
         </div>
         
         <form className="p-4 space-y-4" onSubmit={onSubmit}>
             {/* Duration Selection */}
             <div>
-              <label className="block text-sm font-medium mb-2">Duration</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Duration</label>
               <div className="grid grid-cols-3 gap-2">
                 {durationOptions.map(hrs => (
                   <button
@@ -131,10 +131,10 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
                       setDuration(hrs)
                       setSelectedSlot(null) // Reset selection when duration changes
                     }}
-                    className={`p-2 text-sm rounded border ${
+                    className={`p-2 text-sm rounded border transition-colors duration-200 ${
                       duration === hrs 
-                        ? 'bg-indigo-600 text-white border-indigo-600' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-500' 
+                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
                     }`}
                   >
                     {hrs} {hrs === 1 ? 'hour' : 'hours'}
@@ -145,11 +145,11 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
 
             {/* Time Slot Selection */}
             <div>
-              <label className="block text-sm font-medium mb-2">Available Time Slots</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Available Time Slots</label>
               {loading ? (
-                <div className="p-4 text-center">Loading availability...</div>
+                <div className="p-4 text-center text-gray-600 dark:text-gray-400">Loading availability...</div>
               ) : (
-                <div className="max-h-48 overflow-y-auto border rounded-lg">
+                <div className="max-h-48 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
                   {timeSlots.map((slot, index) => {
                     const available = isSlotAvailable(slot.time, duration)
                     return (
@@ -158,12 +158,12 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
                         type="button"
                         onClick={() => available && setSelectedSlot(slot)}
                         disabled={!available}
-                        className={`w-full p-3 text-left text-sm border-b last:border-b-0 ${
+                        className={`w-full p-3 text-left text-sm border-b border-gray-200 dark:border-gray-600 last:border-b-0 transition-colors duration-200 ${
                           !available
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                             : selectedSlot?.time?.getTime() === slot.time.getTime()
-                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                            : 'hover:bg-gray-50'
+                            ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white'
                         }`}
                       >
                         {slot.label} {!available && '(Booked)'}
@@ -176,21 +176,21 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
 
             {/* Emergency Contact */}
             <div>
-              <label className="block text-sm font-medium mb-2">Emergency Contact (Optional)</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Emergency Contact (Optional)</label>
               <div className="grid grid-cols-2 gap-2">
                 <input
                   type="text"
                   placeholder="Name"
                   value={emergencyContact.name}
                   onChange={(e) => setEmergencyContact(prev => ({ ...prev, name: e.target.value }))}
-                  className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <input
                   type="tel"
                   placeholder="Phone"
                   value={emergencyContact.phone}
                   onChange={(e) => setEmergencyContact(prev => ({ ...prev, phone: e.target.value }))}
-                  className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               <input
@@ -198,40 +198,40 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
                 placeholder="Relation (e.g., Spouse, Friend)"
                 value={emergencyContact.relation}
                 onChange={(e) => setEmergencyContact(prev => ({ ...prev, relation: e.target.value }))}
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="mt-2 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
 
             {/* Booking Summary */}
             {selectedSlot && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
                 <div className="text-sm space-y-1">
                   <div className="flex justify-between">
-                    <span>Start:</span>
-                    <span>{selectedSlot.label}</span>
+                    <span className="text-gray-600 dark:text-gray-400">Start:</span>
+                    <span className="text-gray-900 dark:text-white">{selectedSlot.label}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Duration:</span>
-                    <span>{duration} {duration === 1 ? 'hour' : 'hours'}</span>
+                    <span className="text-gray-600 dark:text-gray-400">Duration:</span>
+                    <span className="text-gray-900 dark:text-white">{duration} {duration === 1 ? 'hour' : 'hours'}</span>
                   </div>
-                  <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                    <span>Total:</span>
-                    <span>₹{totalCost.toLocaleString('en-IN')}</span>
+                  <div className="flex justify-between font-semibold text-lg border-t border-gray-200 dark:border-gray-600 pt-2">
+                    <span className="text-gray-900 dark:text-white">Total:</span>
+                    <span className="text-green-600 dark:text-green-400">₹{totalCost.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
               </div>
             )}
 
-            {error && <div className="p-2 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
+            {error && <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md text-sm border border-red-200 dark:border-red-800">{error}</div>}
             
             <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-gray-600 hover:text-gray-800">
+              <button type="button" onClick={onClose} className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200">
                 Cancel
               </button>
               <button 
                 type="submit" 
                 disabled={submitting || !selectedSlot}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
+                className="px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {submitting ? 'Booking...' : 'Book Now'}
               </button>

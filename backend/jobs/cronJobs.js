@@ -1,9 +1,52 @@
 import cron from 'node-cron';
 import Booking from '../models/Booking.js';
 import User from '../models/User.js';
+import Vehicle from '../models/Vehicle.js';
 import { createNotificationUtil } from '../controllers/notificationController.js';
 
 export const startCronJobs = () => {
+    // Check for unconfirmed bookings every 5 minutes
+    cron.schedule('*/5 * * * *', async () => {
+        try {
+            const now = new Date();
+            
+            // Find bookings that passed confirmation deadline
+            const unconfirmedBookings = await Booking.find({
+                status: 'pending-confirmation',
+                confirmationDeadline: { $lt: now }
+            }).populate('user vehicle station');
+            
+            for (const booking of unconfirmedBookings) {
+                // Cancel the booking
+                booking.status = 'cancelled';
+                await booking.save();
+                
+                // Free up the vehicle
+                await Vehicle.findByIdAndUpdate(booking.vehicle._id, {
+                    status: 'available',
+                    availableAfter: null
+                });
+                
+                // Notify user
+                await createNotificationUtil(
+                    booking.user._id,
+                    'Booking Cancelled',
+                    `Your booking was cancelled as it was not confirmed by the station within the time limit.`,
+                    'booking',
+                    'high',
+                    {},
+                    global.io
+                );
+                
+                console.log(`Auto-cancelled unconfirmed booking ${booking._id}`);
+            }
+            
+            console.log(`Processed ${unconfirmedBookings.length} unconfirmed bookings`);
+        } catch (error) {
+            console.error('Error in confirmation timeout job:', error);
+        }
+    });
+
     // Check for overdue rides every 5 minutes
     cron.schedule('*/5 * * * *', async () => {
         try {

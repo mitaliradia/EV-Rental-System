@@ -94,7 +94,7 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white focus:outline-none transition-colors"
       >
         🔔
         {unreadCount > 0 && (
@@ -105,12 +105,12 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
-          <div className="p-4 border-b flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h3>
             <button 
               onClick={fetchNotifications}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline transition-colors"
             >
               Refresh
             </button>
@@ -118,27 +118,27 @@ const NotificationBell = () => {
           
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
+              <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                 No notifications yet
               </div>
             ) : (
               (showAll ? notifications : notifications.slice(0, 10)).map((notification) => (
                 <div
                   key={notification._id || notification.id}
-                  className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
-                    !notification.isRead ? 'bg-blue-50' : ''
+                  className={`p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+                    !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                   }`}
                   onClick={() => !notification.isRead && markAsRead(notification._id)}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {notification.title}
                       </p>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                         {formatTime(notification.createdAt)}
                       </p>
                     </div>
@@ -152,10 +152,10 @@ const NotificationBell = () => {
           </div>
           
           {notifications.length > 10 && (
-            <div className="p-3 border-t text-center">
+            <div className="p-3 border-t border-gray-200 dark:border-gray-700 text-center">
               <button 
                 onClick={() => setShowAll(!showAll)}
-                className="text-blue-600 text-sm hover:underline"
+                className="text-blue-600 dark:text-blue-400 text-sm hover:underline transition-colors"
               >
                 {showAll ? 'Show recent only' : 'View older notifications'}
               </button>

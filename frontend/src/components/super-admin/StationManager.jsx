@@ -72,107 +72,131 @@ const StationManager = () => {
         fetchStationsOverview();
     };
 
-    if (loading) return <p>Loading stations...</p>;
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-20">
+                <div className="text-center space-y-4">
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto"></div>
+                    <p className="text-gray-600 dark:text-gray-400 font-medium">Loading stations...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-white">Stations Overview</h3>
-                <div className="flex items-center gap-4">
+        <div className="p-6 space-y-6">
+            {/* Header with Actions */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center space-x-2">
+                        <span>🏢</span>
+                        <span>Stations Overview</span>
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Manage and monitor all charging stations across the network
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
                     {hasActiveFilters && (
-                        <button onClick={clearFilters} className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
-                            Clear Filters
+                        <button 
+                            onClick={clearFilters} 
+                            className="px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors duration-200 border border-red-200 dark:border-red-700"
+                        >
+                            🌪️ Clear Filters
                         </button>
                     )}
-                    <button onClick={handleAdd} className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">
-                        + Add Station
+                    <button 
+                        onClick={handleAdd} 
+                        className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-bold rounded-xl hover:from-primary-600 hover:to-accent-600 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                    >
+                        <span className="flex items-center space-x-2">
+                            <span>+</span>
+                            <span>Add Station</span>
+                        </span>
                     </button>
                 </div>
             </div>
             
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4 items-end mb-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Management Status</label>
-                    <select 
-                        value={statusFilter} 
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                        <option value="">All Stations</option>
-                        <option value="managed">Managed</option>
-                        <option value="unmanaged">Unmanaged</option>
-                    </select>
-                </div>
+            {/* Enhanced Filters */}
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 space-y-4">
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center space-x-2">
+                    <span>🔍</span>
+                    <span>Filters & Search</span>
+                </h4>
                 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle Count</label>
-                    <select 
-                        value={vehicleCountFilter} 
-                        onChange={(e) => setVehicleCountFilter(e.target.value)}
-                        className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                        <option value="">Any Count</option>
-                        <option value="0">No Vehicles</option>
-                        <option value="1-5">1-5 Vehicles</option>
-                        <option value="6-10">6-10 Vehicles</option>
-                        <option value="10+">10+ Vehicles</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Revenue Range (₹)</label>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">₹</span>
-                        <input
-                            type="number"
-                            placeholder="Min"
-                            value={revenueRange.min}
-                            onChange={(e) => setRevenueRange(prev => ({ ...prev, min: e.target.value }))}
-                            className="w-24 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        />
-                        <span className="text-gray-400 dark:text-gray-500">-</span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">₹</span>
-                        <input
-                            type="number"
-                            placeholder="Max"
-                            value={revenueRange.max}
-                            onChange={(e) => setRevenueRange(prev => ({ ...prev, max: e.target.value }))}
-                            className="w-24 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        />
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Management Status
+                        </label>
+                        <select 
+                            value={statusFilter} 
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                        >
+                            <option value="">All Stations</option>
+                            <option value="managed">Managed</option>
+                            <option value="unmanaged">Unmanaged</option>
+                        </select>
                     </div>
-                </div>
-                
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort By</label>
-                    <select 
-                        value={sortConfig.key} 
-                        onChange={(e) => setSortConfig(prev => ({ ...prev, key: e.target.value }))}
-                        className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                        <option value="name">Name</option>
-                        <option value="totalVehicles">Vehicle Count</option>
-                        <option value="totalRevenue">Revenue</option>
-                        <option value="activeRides">Active Rides</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <button
-                        onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
-                        className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white flex items-center gap-1"
-                    >
-                        {sortConfig.direction === 'asc' ? (
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                            </svg>
-                        ) : (
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                        )}
-                        {sortConfig.direction === 'asc' ? 'Asc' : 'Desc'}
-                    </button>
+                    
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vehicle Count</label>
+                        <select 
+                            value={vehicleCountFilter} 
+                            onChange={(e) => setVehicleCountFilter(e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                        >
+                            <option value="">Any Count</option>
+                            <option value="0">No Vehicles</option>
+                            <option value="1-5">1-5 Vehicles</option>
+                            <option value="6-10">6-10 Vehicles</option>
+                            <option value="10+">10+ Vehicles</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Revenue Range (₹)</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                placeholder="Min"
+                                value={revenueRange.min}
+                                onChange={(e) => setRevenueRange(prev => ({ ...prev, min: e.target.value }))}
+                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            />
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                            <input
+                                type="number"
+                                placeholder="Max"
+                                value={revenueRange.max}
+                                onChange={(e) => setRevenueRange(prev => ({ ...prev, max: e.target.value }))}
+                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sort By</label>
+                        <div className="flex items-center gap-2">
+                            <select 
+                                value={sortConfig.key} 
+                                onChange={(e) => setSortConfig(prev => ({ ...prev, key: e.target.value }))}
+                                className="flex-1 px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            >
+                                <option value="name">Name</option>
+                                <option value="totalVehicles">Vehicle Count</option>
+                                <option value="totalRevenue">Revenue</option>
+                                <option value="activeRides">Active Rides</option>
+                            </select>
+                            <button
+                                onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
+                                className="px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
+                            >
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

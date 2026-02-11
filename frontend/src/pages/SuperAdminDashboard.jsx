@@ -21,35 +21,61 @@ const SuperAdminDashboard = () => {
     ];
 
     return (
-        <div className="space-y-8">
-            <h1 className="text-4xl font-bold text-gray-800 dark:text-white">Super Admin Panel</h1>
-            
-            {/* Tab Navigation UI */}
-            <div className="border-b border-gray-200 dark:border-gray-700">
-                <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`${
-                                activeTab === tab.id
-                                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none transition-colors`}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </nav>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            {/* Hero Header Section */}
+            <div className="bg-gradient-to-br from-primary-600 via-primary-500 to-accent-600 px-6 py-12">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center space-y-4">
+                        <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
+                            Super Admin Panel
+                        </h1>
+                        <p className="text-xl text-primary-100 max-w-2xl mx-auto">
+                            Complete control and oversight of your EV rental ecosystem
+                        </p>
+                        <div className="flex items-center justify-center space-x-4 text-primary-100">
+                            <div className="h-1 w-16 bg-primary-300 rounded"></div>
+                            <div className="text-sm font-medium">
+                                {new Date().toLocaleDateString('en-US', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                })}
+                            </div>
+                            <div className="h-1 w-16 bg-primary-300 rounded"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Content area where the active component is rendered */}
-            <div className="mt-8">
-                {activeTab === 'stations' && <StationManager />}
-                {activeTab === 'vehicles' && <VehicleManager />}
-                {activeTab === 'masters' && <UserManager />}
-                {activeTab === 'customers' && <CustomerManager />}
-                {activeTab === 'rides' && <ActiveRidesManager />}
+            <div className="max-w-7xl mx-auto px-6 py-8">
+                {/* Enhanced Tab Navigation */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-2 mb-8">
+                    <nav className="flex space-x-2" aria-label="Tabs">
+                        {tabs.map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`${
+                                    activeTab === tab.id
+                                        ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-lg transform scale-105'
+                                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+                                } flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+
+                {/* Content area with enhanced styling */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    {activeTab === 'stations' && <StationManager />}
+                    {activeTab === 'vehicles' && <VehicleManager />}
+                    {activeTab === 'masters' && <UserManager />}
+                    {activeTab === 'customers' && <CustomerManager />}
+                    {activeTab === 'rides' && <ActiveRidesManager />}
+                </div>
             </div>
         </div>
     );

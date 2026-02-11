@@ -10,14 +10,14 @@ const Spinner = () => (
 
 const StatusBadge = ({ status }) => {
     const colors = {
-        'pending-confirmation': 'bg-yellow-100 text-yellow-800',
-        'confirmed': 'bg-blue-100 text-blue-800',
-        'active': 'bg-green-100 text-green-800',
-        'completed': 'bg-gray-200 text-gray-800',
-        'cancelled': 'bg-red-100 text-red-800',
+        'pending-confirmation': 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800',
+        'confirmed': 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border border-blue-200 dark:border-blue-800',
+        'active': 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800',
+        'completed': 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-600',
+        'cancelled': 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-800',
     };
     return (
-        <span className={`px-3 py-1 text-xs font-semibold rounded-full capitalize ${colors[status] || 'bg-gray-100'}`}>
+        <span className={`px-3 py-1 text-xs font-semibold rounded-full capitalize ${colors[status] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'}`}>
             {status.replace('-', ' ')}
         </span>
     );
@@ -111,42 +111,42 @@ const UserDetailPage = () => {
     const hasActiveFilters = statusFilters.length > 0 || costRange.min || costRange.max || dateFilter;
 
     if (loading) return <Spinner />;
-    if (error) return <div className="text-center p-8 bg-red-50 text-red-700 rounded-lg">{error}</div>;
-    if (!userData) return <div className="text-center p-8">User not found.</div>;
+    if (error) return <div className="text-center p-8 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800">{error}</div>;
+    if (!userData) return <div className="text-center p-8 text-gray-900 dark:text-white">User not found.</div>;
 
     const { user, bookings } = userData;
 
     return (
         <div className="space-y-8">
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-                <Link to="/super-admin" className="text-sm text-indigo-600 hover:text-indigo-800 mb-4 inline-block">&larr; Back to Dashboard</Link>
-                <h1 className="text-4xl font-bold text-gray-800">{user.name}</h1>
-                <p className="text-lg text-gray-500">{user.email}</p>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                <Link to="/super-admin" className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 mb-4 inline-block transition-colors">&larr; Back to Dashboard</Link>
+                <h1 className="text-4xl font-bold text-gray-800 dark:text-white">{user.name}</h1>
+                <p className="text-lg text-gray-500 dark:text-gray-400">{user.email}</p>
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                        <span className="font-medium text-gray-600">Member Since:</span>
-                        <p className="text-gray-800">{new Date(user.createdAt).toLocaleDateString()}</p>
+                        <span className="font-medium text-gray-600 dark:text-gray-400">Member Since:</span>
+                        <p className="text-gray-800 dark:text-white">{new Date(user.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div>
-                        <span className="font-medium text-gray-600">Total Bookings:</span>
-                        <p className="text-gray-800">{bookings.length}</p>
+                        <span className="font-medium text-gray-600 dark:text-gray-400">Total Bookings:</span>
+                        <p className="text-gray-800 dark:text-white">{bookings.length}</p>
                     </div>
                     <div>
-                        <span className="font-medium text-gray-600">Account Status:</span>
-                        <p className="text-green-600 font-medium">Active</p>
+                        <span className="font-medium text-gray-600 dark:text-gray-400">Account Status:</span>
+                        <p className="text-green-600 dark:text-green-400 font-medium">Active</p>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-xl font-semibold text-gray-800">
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
                         Booking History ({bookings.length})
                     </h3>
                     {hasActiveFilters && (
                         <button
                             onClick={clearAllFilters}
-                            className="text-sm text-red-600 hover:text-red-800"
+                            className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
                         >
                             Clear All Filters
                         </button>
@@ -202,11 +202,11 @@ const UserDetailPage = () => {
 
                         {/* Date Filter */}
                         <div className="min-w-[150px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Range</label>
                             <select 
                                 value={dateFilter} 
                                 onChange={(e) => setDateFilter(e.target.value)}
-                                className="px-3 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500"
+                                className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             >
                                 {datePresets.map(preset => (
                                     <option key={preset.value} value={preset.value}>{preset.label}</option>
@@ -221,14 +221,14 @@ const UserDetailPage = () => {
                                     type="date"
                                     value={customDateRange.start}
                                     onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
-                                    className="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500"
+                                    className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 />
-                                <span className="text-gray-400 text-sm">to</span>
+                                <span className="text-gray-400 dark:text-gray-500 text-sm">to</span>
                                 <input
                                     type="date"
                                     value={customDateRange.end}
                                     onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
-                                    className="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500"
+                                    className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 />
                             </div>
                         )}
@@ -237,30 +237,30 @@ const UserDetailPage = () => {
                 
                 <div className="overflow-x-auto">
                     {bookings.length > 0 ? (
-                        <table className="min-w-full text-sm divide-y">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-700">
                                 <tr>
                                     {columns.map(column => (
-                                        <th key={column.key} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th key={column.key} className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                             <div className="flex items-center space-x-1">
                                                 <span>{column.label}</span>
                                                 {column.sortable && (
                                                     <button
                                                         onClick={() => handleSort(column.key)}
-                                                        className="ml-2 p-1 hover:bg-gray-200 rounded transition-colors"
+                                                        className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
                                                     >
                                                         {sortConfig.key === column.key ? (
                                                             sortConfig.direction === 'asc' ? (
-                                                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                                                                     <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
                                                                 </svg>
                                                             ) : (
-                                                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                                                                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                                                 </svg>
                                                             )
                                                         ) : (
-                                                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                            <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path d="M5 12l5-5 5 5H5z" />
                                                             </svg>
                                                         )}
@@ -271,20 +271,20 @@ const UserDetailPage = () => {
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y">
+                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {bookings.map(booking => (
-                                    <tr key={booking._id}>
-                                        <td className="px-4 py-3 font-medium">{booking.vehicle?.modelName || 'N/A'}</td>
-                                        <td className="px-4 py-3">{booking.station?.name || 'N/A'}</td>
-                                        <td className="px-4 py-3">{new Date(booking.createdAt).toLocaleDateString()}</td>
-                                        <td className="px-4 py-3 font-semibold text-green-600">₹{booking.totalCost?.toLocaleString('en-IN') || '0'}</td>
+                                    <tr key={booking._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{booking.vehicle?.modelName || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-gray-900 dark:text-gray-300">{booking.station?.name || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-gray-900 dark:text-gray-300">{new Date(booking.createdAt).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 font-semibold text-green-600 dark:text-green-400">₹{booking.totalCost?.toLocaleString('en-IN') || '0'}</td>
                                         <td className="px-4 py-3"><StatusBadge status={booking.status} /></td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     ) : (
-                        <p className="text-center text-gray-500 py-6">
+                        <p className="text-center text-gray-500 dark:text-gray-400 py-6">
                             {hasActiveFilters ? 'No bookings found matching the filters.' : 'This user has not made any bookings yet.'}
                         </p>
                     )}

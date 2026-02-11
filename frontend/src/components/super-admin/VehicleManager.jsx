@@ -106,19 +106,30 @@ const VehicleManager = () => {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-semibold text-gray-800 dark:text-white">Vehicle Fleet Management</h3>
+        <div className="p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center space-x-2">
+                        <span>🚗</span>
+                        <span>Vehicle Fleet Management</span>
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Manage vehicles across all stations in your network
+                    </p>
+                </div>
                 <div className="flex items-center gap-4">
                     {hasActiveFilters && (
-                        <button onClick={clearFilters} className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
+                        <button 
+                            onClick={clearFilters} 
+                            className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-700 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                        >
                             Clear Filters
                         </button>
                     )}
                     <button 
                         onClick={handleAddVehicle} 
                         disabled={managedStations.length === 0} 
-                        className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-bold rounded-xl hover:from-primary-600 hover:to-accent-600 transform hover:scale-105 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
                         title={managedStations.length === 0 ? "You must assign a master to a station before adding vehicles." : ""}
                     >
                         + Add Vehicle
@@ -126,133 +137,157 @@ const VehicleManager = () => {
                 </div>
             </div>
             
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4 items-end">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                    <select 
-                        value={statusFilter} 
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                        <option value="">All Status</option>
-                        <option value="available">Available</option>
-                        <option value="in-use">In Use</option>
-                        <option value="maintenance">Maintenance</option>
-                    </select>
-                </div>
+            {/* Enhanced Filters */}
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 space-y-4">
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center space-x-2">
+                    <span>🔍</span>
+                    <span>Vehicle Filters</span>
+                </h4>
                 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Station</label>
-                    <select 
-                        value={stationFilter} 
-                        onChange={(e) => setStationFilter(e.target.value)}
-                        className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                        <option value="">All Stations</option>
-                        {stations.map(station => (
-                            <option key={station._id} value={station._id}>{station.name}</option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price Range (₹/hr)</label>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">₹</span>
-                        <input
-                            type="number"
-                            placeholder="Min"
-                            value={priceRange.min}
-                            onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
-                            className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        />
-                        <span className="text-gray-400 dark:text-gray-500">-</span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">₹</span>
-                        <input
-                            type="number"
-                            placeholder="Max"
-                            value={priceRange.max}
-                            onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
-                            className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        />
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                        <select 
+                            value={statusFilter} 
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                        >
+                            <option value="">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="in-use">In Use</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Station</label>
+                        <select 
+                            value={stationFilter} 
+                            onChange={(e) => setStationFilter(e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                        >
+                            <option value="">All Stations</option>
+                            {stations.map(station => (
+                                <option key={station._id} value={station._id}>{station.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Price Range (₹/hr)</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                placeholder="Min"
+                                value={priceRange.min}
+                                onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            />
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                            <input
+                                type="number"
+                                placeholder="Max"
+                                value={priceRange.max}
+                                onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sort By</label>
+                        <div className="flex items-center gap-2">
+                            <select 
+                                value={sortConfig.key} 
+                                onChange={(e) => setSortConfig(prev => ({ ...prev, key: e.target.value }))}
+                                className="flex-1 px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            >
+                                <option value="modelName">Model Name</option>
+                                <option value="pricePerHour">Price</option>
+                                <option value="status">Status</option>
+                            </select>
+                            <button
+                                onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
+                                className="px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
+                            >
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-                <div className="overflow-x-auto">
-                    {loading ? <p className="text-gray-600 dark:text-gray-400">Loading vehicles...</p> : (
-                        <table className="min-w-full text-sm divide-y">
-                            <thead className="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    {columns.map(column => (
-                                        <th key={column.key} className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                            <div className="flex items-center space-x-1">
-                                                <span>{column.label}</span>
-                                                {column.sortable && (
-                                                    <button
-                                                        onClick={() => handleSort(column.key)}
-                                                        className="ml-2 p-1 hover:bg-gray-200 rounded transition-colors"
-                                                    >
-                                                        {sortConfig.key === column.key ? (
-                                                            sortConfig.direction === 'asc' ? (
-                                                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                                                                </svg>
-                                                            ) : (
-                                                                <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                                </svg>
-                                                            )
-                                                        ) : (
-                                                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M5 12l5-5 5 5H5z" />
-                                                            </svg>
-                                                        )}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </th>
-                                    ))}
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-600 bg-white dark:bg-gray-800">
-                                {vehicles.map(v => (
-                                    <tr key={v._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{v.modelName}</td>
-                                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{v.station?.name || 'N/A'}</td>
-                                        <td className="px-4 py-3 font-semibold text-green-600 dark:text-green-400">₹{v.pricePerHour?.toLocaleString('en-IN') || '0'}</td>
-                                        <td className="px-4 py-3">
-                                            <span className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                                                v.status === 'available' ? 'bg-green-100 text-green-800' : 
-                                                v.status === 'in-use' ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-red-100 text-red-800'
-                                            }`}>
-                                                {v.status?.replace('-', ' ')}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex gap-2">
-                                                <button 
-                                                    onClick={() => handleEditVehicle(v)} 
-                                                    className="text-xs font-medium text-indigo-600 hover:text-indigo-900"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDeleteVehicle(v._id)} 
-                                                    className="text-xs font-medium text-red-600 hover:text-red-900"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </td>
+            {/* Enhanced Vehicle Table */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center space-x-3">
+                        <div className="text-xl">🚗</div>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white">Vehicle Fleet</h3>
+                    </div>
+                </div>
+                
+                <div className="p-6">
+                    {loading ? (
+                        <div className="flex justify-center items-center py-12">
+                            <div className="text-center space-y-4">
+                                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mx-auto"></div>
+                                <p className="text-gray-600 dark:text-gray-400 font-medium">Loading vehicles...</p>
+                            </div>
+                        </div>
+                    ) : vehicles.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-gray-200 dark:border-gray-600">
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Model</th>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Station</th>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Price/Hour</th>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {vehicles.map((v, index) => (
+                                        <tr key={v._id} className={`${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
+                                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{v.modelName}</td>
+                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{v.station?.name || 'N/A'}</td>
+                                            <td className="px-4 py-3 font-semibold text-green-600 dark:text-green-400">₹{v.pricePerHour?.toLocaleString('en-IN') || '0'}</td>
+                                            <td className="px-4 py-3">
+                                                <span className={`px-3 py-1 text-xs font-semibold rounded-full capitalize ${
+                                                    v.status === 'available' ? 'bg-green-100 text-green-800 border border-green-200' : 
+                                                    v.status === 'in-use' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                                                    'bg-red-100 text-red-800 border border-red-200'
+                                                }`}>
+                                                    {v.status?.replace('-', ' ')}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={() => handleEditVehicle(v)} 
+                                                        className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 border border-indigo-200 dark:border-indigo-600 px-3 py-1 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteVehicle(v._id)} 
+                                                        className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-600 px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <div className="text-gray-400 text-4xl mb-4">🚗</div>
+                            <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">No vehicles found</h3>
+                            <p className="text-gray-500 dark:text-gray-400">Add vehicles to start managing your fleet</p>
+                        </div>
                     )}
                 </div>
             </div>

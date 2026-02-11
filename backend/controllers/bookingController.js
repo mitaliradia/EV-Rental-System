@@ -78,6 +78,14 @@ export const createBooking = async (req, res) => {
             emergencyContacts: emergencyContacts || []
         });
         
+        // Intelligent confirmation timeout based on booking timing
+        const isAdvanceBooking = requestedStartTime.getTime() > (now.getTime() + 12 * 60 * 60 * 1000); // 12+ hours ahead
+        const confirmationTimeout = isAdvanceBooking ? 4 * 60 * 60 * 1000 : 15 * 60 * 1000; // 4 hours vs 15 minutes
+        
+        // Set confirmation deadline
+        booking.confirmationDeadline = new Date(now.getTime() + confirmationTimeout);
+        await booking.save();
+        
         // Update vehicle status to reserved
         await Vehicle.findByIdAndUpdate(vehicleId, { status: 'reserved' });
         

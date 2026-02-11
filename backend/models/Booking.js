@@ -10,7 +10,9 @@ const bookingSchema = new mongoose.Schema({
     status: { type: String, enum: [ 'confirmed', 'active', 'completed', 'cancelled','pending-confirmation'], default: 'pending-confirmation' },
     paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
     paymentId: { type: String },
-    paymentDeadline: { type: Date }, // 15 minutes after confirmation
+    paymentDeadline: { type: Date }, // Smart deadline: 15 min immediate, 2 hours advance
+    confirmationDeadline: { type: Date }, // Smart deadline: 15 min immediate, 4 hours advance
+    paymentReminderSent: { type: Boolean, default: false }, // Track if reminder was sent
     modifications: [{
         type: { type: String, enum: ['extend', 'shorten'] },
         oldEndTime: Date,

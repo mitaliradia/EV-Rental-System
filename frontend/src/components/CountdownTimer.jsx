@@ -31,12 +31,12 @@ const CountdownTimer = ({ expiryTimestamp, onExpire }) => {
 
     if (timeLeft.minutes !== undefined) {
         return (
-            <span className="font-bold text-red-600">
+            <span className="font-bold text-red-600 dark:text-red-400">
                 {String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
             </span>
         );
     } else {
-        return <span className="font-bold text-red-600">Expired</span>;
+        return <span className="font-bold text-red-600 dark:text-red-400">Expired</span>;
     }
 };
 

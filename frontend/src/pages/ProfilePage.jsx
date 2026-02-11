@@ -111,60 +111,136 @@ const CountdownTimer = ({ expiryTimestamp, onExpire }) => {
     return <>{timerComponents}</>;
 };
 
-// --- UserInfo Component ---
+// --- Enhanced UserInfo Component ---
 const UserInfo = () => {
     return (
-        <div className="p-6 rounded-lg border bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700">
-            <h3 className="text-xl font-semibold text-green-800 dark:text-green-200">Account Ready</h3>
-            <p className="mt-2 text-sm text-green-700 dark:text-green-300 mb-4">
-                You are ready to book vehicles. Find your next ride!
-            </p>
-            <Link 
-                to="/vehicles" 
-                className="inline-block px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 shadow-sm"
-            >
-                Browse Our Fleet
-            </Link>
+        <div className="p-8 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 border-2 border-green-200 dark:border-green-700 relative overflow-hidden">
+            {/* Decorative background */}
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-green-200 dark:bg-green-700 rounded-full opacity-20"></div>
+            <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 bg-emerald-200 dark:bg-emerald-700 rounded-full opacity-10"></div>
+            
+            <div className="relative z-10">
+                <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-lg">✅</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-green-800 dark:text-green-200">Account Ready</h3>
+                </div>
+                <p className="text-green-700 dark:text-green-300 mb-6 leading-relaxed">
+                    You're all set! Your account is verified and ready to book vehicles. 
+                    Start your eco-friendly journey today.
+                </p>
+                <Link 
+                    to="/vehicles" 
+                    className="inline-flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-bold rounded-xl hover:from-primary-600 hover:to-accent-600 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                >
+                    <span>🚗</span>
+                    <span>Browse Our Fleet</span>
+                </Link>
+            </div>
         </div>
     );
 };
 
-// --- Main ProfilePage Component ---
+// --- Enhanced Main ProfilePage Component ---
 const ProfilePage = () => {
     const { authUser } = useAuth();
 
     return (
-        <div>
-            <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-8">Welcome, {authUser?.name}</h1>
-            <div className="space-y-8">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-                    <UserInfo /> 
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            {/* Beautiful Hero Header */}
+            <div className="bg-gradient-to-br from-primary-600 via-primary-500 to-accent-600 px-6 py-12">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center space-y-4">
+                        <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span className="text-4xl">👤</span>
+                        </div>
+                        <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
+                            Welcome, {authUser?.name}!
+                        </h1>
+                        <p className="text-xl text-primary-100 max-w-2xl mx-auto">
+                            Manage your bookings, explore analytics, and continue your sustainable journey
+                        </p>
+                        <div className="flex items-center justify-center space-x-4 text-primary-100">
+                            <div className="h-1 w-16 bg-primary-300 rounded"></div>
+                            <div className="text-sm font-medium">
+                                🌱 EV Rental Dashboard
+                            </div>
+                            <div className="h-1 w-16 bg-primary-300 rounded"></div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+                {/* Account Status Card */}
+                <UserInfo /> 
                 
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Link to="/favorites" className="p-4 bg-red-50 dark:bg-red-900 rounded-lg text-center hover:bg-red-100 dark:hover:bg-red-800">
-                            <div className="text-2xl mb-2">❤️</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-white">Favorites</div>
-                        </Link>
-                        <Link to="/analytics" className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg text-center hover:bg-blue-100 dark:hover:bg-blue-800">
-                            <div className="text-2xl mb-2">📊</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-white">Analytics</div>
-                        </Link>
-                        <button 
-                            onClick={exportToPDF}
-                            className="p-4 bg-green-50 dark:bg-green-900 rounded-lg text-center hover:bg-green-100 dark:hover:bg-green-800"
-                        >
-                            <div className="text-2xl mb-2">📄</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-white">Export PDF</div>
-                        </button>
+                {/* Enhanced Quick Actions */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center space-x-3">
+                            <div className="text-xl">⚡</div>
+                            <h3 className="text-xl font-bold text-gray-800 dark:text-white">Quick Actions</h3>
+                        </div>
+                    </div>
+                    
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <Link 
+                                to="/favorites" 
+                                className="group p-6 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 rounded-2xl border-2 border-red-100 dark:border-red-800 hover:border-red-200 dark:hover:border-red-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                            >
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-red-400 to-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <span className="text-2xl text-white">❤️</span>
+                                    </div>
+                                    <h4 className="text-lg font-bold text-gray-800 dark:text-white mb-2">Favorites</h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Your saved vehicles</p>
+                                </div>
+                            </Link>
+                            
+                            <Link 
+                                to="/analytics" 
+                                className="group p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl border-2 border-blue-100 dark:border-blue-800 hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                            >
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <span className="text-2xl text-white">📈</span>
+                                    </div>
+                                    <h4 className="text-lg font-bold text-gray-800 dark:text-white mb-2">Analytics</h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">View your stats</p>
+                                </div>
+                            </Link>
+                            
+                            <button 
+                                onClick={exportToPDF}
+                                className="group p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl border-2 border-green-100 dark:border-green-800 hover:border-green-200 dark:hover:border-green-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                            >
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <span className="text-2xl text-white">📄</span>
+                                    </div>
+                                    <h4 className="text-lg font-bold text-gray-800 dark:text-white mb-2">Export PDF</h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Download report</p>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">My Bookings</h3>
-                    <MyBookings />
+                {/* Enhanced Bookings Section */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center space-x-3">
+                            <div className="text-xl">📅</div>
+                            <h3 className="text-xl font-bold text-gray-800 dark:text-white">My Bookings</h3>
+                        </div>
+                    </div>
+                    
+                    <div className="p-6">
+                        <MyBookings />
+                    </div>
                 </div>
             </div>
         </div>

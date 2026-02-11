@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 
-const Stat = ({ label, value, color = 'text-gray-800' }) => (
+const Stat = ({ label, value, color = 'text-gray-800 dark:text-gray-200' }) => (
     <div className="text-center">
         <p className={`text-2xl font-bold ${color}`}>{value}</p>
-        <p className="text-xs text-gray-500 uppercase tracking-wider">{label}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">{label}</p>
     </div>
 );
 
@@ -26,18 +26,18 @@ const StationCard = ({ stationData, onEdit }) => {
         // 1. The entire card is a Link to the detail page
         <Link 
             to={`/super-admin/station/${station._id}`}
-            className="block bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition-all"
+            className="block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200"
         >
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <h3 className="text-xl font-bold text-gray-900">{station.name}</h3>
-                    <p className="text-sm text-gray-500">{station.location}</p>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{station.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{station.location}</p>
                     {stats?.stationMaster?.name ? (
-                         <p className="text-xs mt-1 bg-blue-100 text-blue-800 font-medium px-2 py-1 rounded-full inline-block">
+                         <p className="text-xs mt-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 font-medium px-2 py-1 rounded-full inline-block">
                             Master: {stats.stationMaster.name}
                          </p>
                     ) : (
-                        <p className="text-xs mt-1 bg-yellow-100 text-yellow-800 font-medium px-2 py-1 rounded-full inline-block">
+                        <p className="text-xs mt-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 font-medium px-2 py-1 rounded-full inline-block">
                             No Master Assigned
                         </p>
                     )}
@@ -46,7 +46,7 @@ const StationCard = ({ stationData, onEdit }) => {
                 {/* 2. The "Edit" button has its own specific onClick handler */}
                 <button 
                     onClick={handleEditClick} 
-                    className="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline relative z-10"
+                    className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline relative z-10 transition-colors duration-200"
                 >
                     Edit
                 </button>

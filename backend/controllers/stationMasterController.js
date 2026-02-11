@@ -74,8 +74,16 @@ export const updateBookingStatus = async (req, res) => {
     }
     else if(newStatus==='confirmed' && booking.status==='pending-confirmation'){
         booking.status='confirmed';
-        // Set 15-minute payment deadline
-        booking.paymentDeadline = new Date(Date.now() + 15 * 60 * 1000);
+        
+        // Intelligent payment deadline based on booking timing
+        const now = new Date();
+        const startTime = new Date(booking.startTime);
+        const isAdvanceBooking = startTime.getTime() > (now.getTime() + 12 * 60 * 60 * 1000); // 12+ hours ahead
+        
+        // Extended payment window for advance bookings
+        const paymentWindow = isAdvanceBooking ? 2 * 60 * 60 * 1000 : 15 * 60 * 1000; // 2 hours vs 15 minutes
+        booking.paymentDeadline = new Date(now.getTime() + paymentWindow);
+        
         // Keep vehicle as reserved when confirmed
         await Vehicle.findByIdAndUpdate(booking.vehicle, {status: 'reserved'});
         
@@ -94,9 +102,15 @@ export const updateBookingStatus = async (req, res) => {
     const stationId = booking.station._id.toString();
 
     // Send single notification to user
-    const getStatusMessage = (status, vehicleModel, paymentStatus) => {
+    const getStatusMessage = (status, vehicleModel, paymentStatus, paymentDeadline) => {
+        const now = new Date();
+        const timeLeft = paymentDeadline ? Math.round((paymentDeadline - now) / (1000 * 60)) : 0;
+        
         switch(status) {
-            case 'confirmed': return `Your booking for ${vehicleModel} has been confirmed! Please complete payment within 15 minutes to secure your booking.`;
+            case 'confirmed': {
+                const timeText = timeLeft > 60 ? `${Math.round(timeLeft/60)} hours` : `${timeLeft} minutes`;
+                return `Your booking for ${vehicleModel} has been confirmed! Please complete payment within ${timeText} to secure your booking.`;
+            }
             case 'active': return `Your ride with ${vehicleModel} has started. Enjoy your trip!`;
             case 'completed': return `Your ride with ${vehicleModel} has been completed. Thank you for using our service!`;
             case 'cancelled': 

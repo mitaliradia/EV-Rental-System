@@ -51,35 +51,35 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md border border-gray-200 dark:border-gray-700">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Rate Your Experience</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Rate Your Experience</h3>
+            <button onClick={onClose} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200">✕</button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Vehicle Rating</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Vehicle Rating</label>
               <StarRating rating={vehicleRating} onRatingChange={setVehicleRating} />
               <textarea
                 value={vehicleComment}
                 onChange={(e) => setVehicleComment(e.target.value)}
                 placeholder="How was the vehicle? (optional)"
-                className="mt-2 w-full px-3 py-2 border rounded-md text-sm"
+                className="mt-2 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 rows="2"
                 maxLength="500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Station Rating</label>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Station Rating</label>
               <StarRating rating={stationRating} onRatingChange={setStationRating} />
               <textarea
                 value={stationComment}
                 onChange={(e) => setStationComment(e.target.value)}
                 placeholder="How was the station service? (optional)"
-                className="mt-2 w-full px-3 py-2 border rounded-md text-sm"
+                className="mt-2 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 rows="2"
                 maxLength="500"
               />
@@ -89,14 +89,14 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
               >
                 Skip
               </button>
               <button
                 type="submit"
                 disabled={loading || (vehicleRating === 0 && stationRating === 0)}
-                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
+                className="flex-1 px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {loading ? 'Submitting...' : 'Submit Review'}
               </button>
