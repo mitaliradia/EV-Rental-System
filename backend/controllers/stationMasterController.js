@@ -80,8 +80,8 @@ export const updateBookingStatus = async (req, res) => {
         const startTime = new Date(booking.startTime);
         const isAdvanceBooking = startTime.getTime() > (now.getTime() + 12 * 60 * 60 * 1000); // 12+ hours ahead
         
-        // Extended payment window for advance bookings
-        const paymentWindow = isAdvanceBooking ? 2 * 60 * 60 * 1000 : 15 * 60 * 1000; // 2 hours vs 15 minutes
+        // Issue #31: Extended payment window - 30 minutes for immediate, 2 hours for advance
+        const paymentWindow = isAdvanceBooking ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000; // 2 hours vs 30 minutes
         booking.paymentDeadline = new Date(now.getTime() + paymentWindow);
         
         // Keep vehicle as reserved when confirmed

@@ -11,7 +11,43 @@ const userSchema = new mongoose.Schema({
     isPhoneVerified: { type: Boolean, default: false },
     phoneOTP: { type: String },
     phoneOTPExpires: { type: Date },
+    // Driver's License Information (Issue #4)
+    driverLicense: {
+        number: { type: String, sparse: true },
+        expiryDate: { type: Date },
+        issuingCountry: { type: String },
+        issuingState: { type: String },
+        isVerified: { type: Boolean, default: false },
+        verifiedAt: { type: Date },
+        frontImageUrl: { type: String },
+        backImageUrl: { type: String }
+    },
+    // Age verification (Issue #4)
+    dateOfBirth: { type: Date },
+    // Security deposit tracking (Issue #5)
+    securityDeposit: {
+        amount: { type: Number, default: 0 },
+        isHeld: { type: Boolean, default: false },
+        heldAt: { type: Date },
+        releaseScheduledAt: { type: Date },
+        transactionId: { type: String }
+    },
+    // Loyalty program (Issue #33)
+    loyaltyPoints: { type: Number, default: 0 },
+    loyaltyTier: { type: String, enum: ['bronze', 'silver', 'gold', 'platinum'], default: 'bronze' },
+    totalRides: { type: Number, default: 0 },
+    totalSpent: { type: Number, default: 0 },
+    referralCode: { type: String, unique: true, sparse: true },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
+
+// Indexes for performance (Issue #34)
+userSchema.index({ email: 1 });
+userSchema.index({ phone: 1 });
+userSchema.index({ role: 1, station: 1 });
+userSchema.index({ loyaltyTier: 1 });
+userSchema.index({ 'driverLicense.number': 1 });
+userSchema.index({ referralCode: 1 });
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();

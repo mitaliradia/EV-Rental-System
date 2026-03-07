@@ -1,12 +1,13 @@
 import express from 'express';
 import { createBooking, getMyBookings, getVehicleAvailability, modifyBooking, getUserAnalytics } from '../controllers/bookingController.js';
 import { protectRoute } from '../middleware/protectRoute.js';
+import { bookingLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
 // @desc    Create a new booking
 // @route   POST /api/bookings
-router.post('/', protectRoute, createBooking);
+router.post('/', protectRoute, bookingLimiter, createBooking);
 
 // @desc    Get bookings for the logged-in user
 // @route   GET /api/bookings/mybookings

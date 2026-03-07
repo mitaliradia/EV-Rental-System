@@ -6,6 +6,25 @@ const vehicleSchema = new mongoose.Schema({
     status: { type: String, enum: ['available', 'reserved', 'in-use', 'maintenance'], default: 'available' },
     pricePerHour: { type: Number, required: true },
     availableAfter: { type: Date, required: false },
+    // Return location flexibility (Issue #15)
+    allowOneWayTrip: { type: Boolean, default: false },
+    oneWayDropOffFee: { type: Number, default: 0 },
+    currentLocation: { type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
+    // Vehicle identification
+    licensePlate: { type: String, sparse: true, unique: true },
+    vin: { type: String, sparse: true, unique: true },
+    // Maintenance tracking
+    batteryLevel: { type: Number, min: 0, max: 100 },
+    mileage: { type: Number, default: 0 },
+    lastServiceDate: { type: Date },
+    nextServiceDue: { type: Date },
+    insuranceExpiry: { type: Date }
 });
+
+// Indexes for performance (Issue #34)
+vehicleSchema.index({ station: 1, status: 1 });
+vehicleSchema.index({ status: 1 });
+vehicleSchema.index({ licensePlate: 1 });
+
 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
 export default Vehicle;

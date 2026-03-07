@@ -24,14 +24,51 @@ import otpRoutes from './routes/otpRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import refundRoutes from './routes/refundRoutes.js';
+import supportRoutes from './routes/supportRoutes.js';
+import loyaltyRoutes from './routes/loyaltyRoutes.js';
 import { startCronJobs } from './jobs/cronJobs.js';
 import { startPaymentTimeoutJob } from './jobs/paymentTimeout.js';
+import { socketAuthMiddleware, validateRoomAccess } from './middleware/socketAuth.js';
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected...'))
-    .catch(err => console.error(err));
+// MongoDB connection with retry logic and better timeout settings
+const connectDB = async () => {
+    const options = {
+        serverSelectionTimeoutMS: 10000, // 10 seconds
+        socketTimeoutMS: 45000, // 45 seconds
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        maxIdleTimeMS: 30000,
+        retryWrites: true,
+        retryReads: true,
+    };
+    
+    try {
+        await mongoose.connect(process.env.MONGO_URI, options);
+        console.log('✅ MongoDB Connected successfully');
+    } catch (err) {
+        console.error('❌ MongoDB Connection Error:', err.message);
+        console.log('🔄 Retrying connection in 5 seconds...');
+        setTimeout(connectDB, 5000);
+    }
+};
+
+// Handle connection events
+mongoose.connection.on('disconnected', () => {
+    console.warn('⚠️ MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('❌ MongoDB error:', err.message);
+});
+
+mongoose.connection.on('reconnected', () => {
+    console.log('✅ MongoDB reconnected');
+});
+
+connectDB();
 
 const app = express();
 
@@ -55,10 +92,13 @@ const corsOptions = {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true); // Allow the request
         } else {
-            callback(new Error('Not allowed by CORS')); // Block the request
+            console.warn(`⚠️ CORS blocked request from: ${origin}`);
+            console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+            callback(new Error(`Not allowed by CORS. Origin: ${origin}`)); // Block the request
         }
     },
     credentials: true,
+    optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
@@ -77,6 +117,33 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
         credentials: true
     }
+});
+
+// Issue #28: Socket.IO authentication middleware
+io.use(socketAuthMiddleware);
+
+// Handle socket connections with room access control
+io.on('connection', (socket) => {
+    console.log(`User connected: ${socket.userId}`);
+    
+    // Automatically join user's personal room
+    socket.join(socket.userId);
+    
+    // Handle room join requests with validation
+    socket.on('join_room', (roomName) => {
+        if (validateRoomAccess(socket, roomName)) {
+            socket.join(roomName);
+            console.log(`User ${socket.userId} joined room: ${roomName}`);
+        } else {
+            socket.emit('error', { message: 'Unauthorized room access' });
+            console.log(`User ${socket.userId} denied access to room: ${roomName}`);
+        }
+    });
+    
+    // Handle disconnect
+    socket.on('disconnect', () => {
+        console.log(`User disconnected: ${socket.userId}`);
+    });
 });
 
 // Middleware to make 'io' accessible in controllers
@@ -99,8 +166,9 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/favorites', favoriteRoutes);
-app.use('/api/payments', paymentRoutes);
-
+app.use('/api/payments', paymentRoutes);app.use('/api/refund', refundRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/loyalty', loyaltyRoutes);
 //Socket.IO connection logic
 io.on('connection',(socket)=>{
     console.log('A user connected:',socket.id);

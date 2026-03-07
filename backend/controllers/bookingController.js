@@ -1,11 +1,18 @@
 import Booking from '../models/Booking.js';
 import Vehicle from '../models/Vehicle.js';
 import User from '../models/User.js';
+import mongoose from 'mongoose';
 
 export const createBooking = async (req, res) => {
+    // Issue #3: Use database transaction for concurrent booking protection (Issue #16)
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
     try {
-        const {vehicleId,stationId,startTime,endTime,totalCost,emergencyContacts}=req.body;
+        const {vehicleId,stationId,startTime,endTime,emergencyContacts,returnStationId}=req.body;
         if (!vehicleId || !stationId || !startTime || !endTime) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: "Missing required booking details." });
         }
 
@@ -15,21 +22,29 @@ export const createBooking = async (req, res) => {
         
         // Real-world validations
         if (requestedStartTime < now) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: "Cannot book in the past." });
         }
         
         // Minimum 30 minutes lead time
         const minLeadTime = new Date(now.getTime() + 30 * 60 * 1000);
         if (requestedStartTime < minLeadTime) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: "Bookings must be made at least 30 minutes in advance." });
         }
         
         // Check duration limits (1 hour minimum, 7 days maximum)
         const durationHours = (requestedEndTime - requestedStartTime) / (1000 * 60 * 60);
         if (durationHours < 1) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: "Minimum booking duration is 1 hour." });
         }
         if (durationHours > 168) { // 7 days
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: "Maximum booking duration is 7 days." });
         }
         
@@ -37,6 +52,8 @@ export const createBooking = async (req, res) => {
         const startHour = requestedStartTime.getHours();
         const endHour = requestedEndTime.getHours();
         if (startHour < 6 || startHour > 23 || endHour < 6 || (endHour > 23 && requestedEndTime.getMinutes() > 0)) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: "Station operates from 6 AM to 11 PM only." });
         }
 
@@ -47,47 +64,95 @@ export const createBooking = async (req, res) => {
         });
         
         if (stationMasterCount === 0) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ 
                 message: "This station is currently unmanaged and not accepting bookings." 
             });
         }
         
+        // Issue #2: Calculate totalCost server-side (security fix)
+        const vehicle = await Vehicle.findById(vehicleId).session(session);
+        if (!vehicle) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "Vehicle not found." });
+        }
+        
+        const totalCost = durationHours * vehicle.pricePerHour;
+        
+        // Issue #5: Calculate security deposit (10% of total cost, min 500, max 5000)
+        const securityDepositAmount = Math.min(Math.max(totalCost * 0.1, 500), 5000);
+        
+        // Issue #15: Handle one-way trip with different return station
+        let oneWayFee = 0;
+        let returnStation = stationId;
+        if (returnStationId && returnStationId !== stationId) {
+            if (vehicle.allowOneWayTrip) {
+                oneWayFee = vehicle.oneWayDropOffFee || 500; // Default 500 if not set
+                returnStation = returnStationId;
+            } else {
+                await session.abortTransaction();
+                session.endSession();
+                return res.status(400).json({ message: "This vehicle does not support one-way trips." });
+            }
+        }
+        
+        // Check for conflicts with transaction lock
         const conflictingBooking = await Booking.findOne({
             vehicle: vehicleId,
             status: { $ne: 'cancelled' },
             $or: [
                 { startTime: { $lt: requestedEndTime }, endTime: { $gt: requestedStartTime } }
             ]
-        });
+        }).session(session);
 
         if (conflictingBooking) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(409).json({
                 message: 'Sorry, this vehicle is not available for the selected time slot. It may have just been booked by another user.' 
             });
         }
         
-        const booking = await Booking.create({ 
+        const booking = await Booking.create([{ 
             user: req.user._id, 
             vehicle: vehicleId,
-            station: stationId, 
+            station: stationId,
+            returnStation: returnStation,
+            oneWayFee: oneWayFee,
             startTime: requestedStartTime, 
             endTime: requestedEndTime,
             originalEndTime: requestedEndTime,
-            totalCost,
+            totalCost: totalCost + oneWayFee,
             status:'pending-confirmation',
-            emergencyContacts: emergencyContacts || []
-        });
+            emergencyContacts: emergencyContacts || [],
+            // Security deposit
+            securityDeposit: {
+                amount: securityDepositAmount,
+                status: 'pending'
+            },
+            // Overtime settings
+            overtimeCharges: {
+                overtimeRate: vehicle.pricePerHour * 1.5, // 1.5x rate for overtime
+                gracePeriodMinutes: 15
+            }
+        }], { session });
         
         // Intelligent confirmation timeout based on booking timing
         const isAdvanceBooking = requestedStartTime.getTime() > (now.getTime() + 12 * 60 * 60 * 1000); // 12+ hours ahead
         const confirmationTimeout = isAdvanceBooking ? 4 * 60 * 60 * 1000 : 15 * 60 * 1000; // 4 hours vs 15 minutes
         
         // Set confirmation deadline
-        booking.confirmationDeadline = new Date(now.getTime() + confirmationTimeout);
-        await booking.save();
+        booking[0].confirmationDeadline = new Date(now.getTime() + confirmationTimeout);
+        await booking[0].save({ session });
         
         // Update vehicle status to reserved
-        await Vehicle.findByIdAndUpdate(vehicleId, { status: 'reserved' });
+        await Vehicle.findByIdAndUpdate(vehicleId, { status: 'reserved' }, { session });
+        
+        // Commit transaction
+        await session.commitTransaction();
+        session.endSession();
         
         // Notify station master dashboard to refresh
         const io = req.io;
@@ -102,14 +167,16 @@ export const createBooking = async (req, res) => {
                 setTimeout(() => {
                     io.to(req.user._id.toString()).emit('booking_reminder', {
                         message: 'Your ride starts in 1 hour!',
-                        booking: booking._id
+                        booking: booking[0]._id
                     });
                 }, reminderTime.getTime() - Date.now());
             }
         }
         
-        res.status(201).json(booking);
+        res.status(201).json(booking[0]);
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         console.error("--- ERROR IN createBookingRequest ---");
         console.error(error);
         console.error("------------------------------------");
@@ -158,12 +225,19 @@ export const modifyBooking = async (req, res) => {
             return res.status(404).json({ message: 'Booking not found' });
         }
         
-        if (!['pending-confirmation', 'confirmed'].includes(booking.status)) {
-            return res.status(400).json({ message: 'Cannot modify active or completed bookings' });
+        // Issue #13: Allow modification for active rides
+        if (!['pending-confirmation', 'confirmed', 'active'].includes(booking.status)) {
+            return res.status(400).json({ message: 'Cannot modify completed or cancelled bookings' });
         }
         
         const newEnd = new Date(newEndTime);
         const oldEnd = booking.endTime;
+        const now = new Date();
+        
+        // For active rides, must extend beyond current time
+        if (booking.status === 'active' && newEnd <= now) {
+            return res.status(400).json({ message: 'Extension must be in the future' });
+        }
         
         // Check if new time slot is available
         const conflictingBooking = await Booking.findOne({
@@ -179,7 +253,7 @@ export const modifyBooking = async (req, res) => {
             return res.status(409).json({ message: 'Time slot not available for modification' });
         }
         
-        // Calculate cost difference
+        // Calculate cost difference (server-side calculation Issue #2)
         const oldDuration = (oldEnd - booking.startTime) / (1000 * 60 * 60);
         const newDuration = (newEnd - booking.startTime) / (1000 * 60 * 60);
         const additionalCost = (newDuration - oldDuration) * booking.vehicle.pricePerHour;
@@ -194,8 +268,19 @@ export const modifyBooking = async (req, res) => {
             additionalCost
         });
         
+        // For active rides, if extending, require immediate payment
+        if (booking.status === 'active' && type === 'extend') {
+            booking.paymentStatus = 'pending';
+            booking.paymentDeadline = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes to pay for extension
+        }
+        
         await booking.save();
-        res.json({ message: 'Booking modified successfully', additionalCost });
+        res.json({ 
+            message: 'Booking modified successfully', 
+            additionalCost,
+            requiresPayment: booking.status === 'active' && type === 'extend',
+            paymentDeadline: booking.paymentDeadline
+        });
     } catch (error) {
         res.status(500).json({ message: 'Server Error modifying booking' });
     }

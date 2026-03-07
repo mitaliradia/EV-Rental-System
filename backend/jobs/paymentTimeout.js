@@ -1,15 +1,22 @@
 import cron from 'node-cron';
 import Booking from '../models/Booking.js';
 import Vehicle from '../models/Vehicle.js';
+import mongoose from 'mongoose';
 
 export const startPaymentTimeoutJob = () => {
     // Run every minute to check for expired payments and send reminders
     cron.schedule('* * * * *', async () => {
+        // Skip if MongoDB is not connected
+        if (mongoose.connection.readyState !== 1) {
+            console.log('⚠️ Skipping payment timeout job - MongoDB not connected');
+            return;
+        }
+        
         try {
             const now = new Date();
-            const reminderTime = new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes before expiry
+            const reminderTime = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes before expiry (Issue #31)
             
-            // Send payment reminders (5 minutes before expiry)
+            // Send payment reminders (10 minutes before expiry)
             const expiringBookings = await Booking.find({
                 status: 'confirmed',
                 paymentStatus: 'pending',
@@ -21,7 +28,7 @@ export const startPaymentTimeoutJob = () => {
                 if (global.io) {
                     global.io.to(booking.user._id.toString()).emit('notification', {
                         title: 'Payment Reminder',
-                        message: `Only 5 minutes left to complete payment for your ${booking.vehicle.modelName} booking!`,
+                        message: `Only 10 minutes left to complete payment for your ${booking.vehicle.modelName} booking!`,
                         type: 'payment',
                         priority: 'urgent'
                     });
@@ -56,7 +63,7 @@ export const startPaymentTimeoutJob = () => {
                 // Notify user via socket if connected
                 if (global.io) {
                     const timeAllowed = booking.paymentDeadline.getTime() - booking.updatedAt.getTime();
-                    const timeText = timeAllowed > (60 * 60 * 1000) ? '2 hours' : '15 minutes';
+                    const timeText = timeAllowed > (60 * 60 * 1000) ? '2 hours' : '30 minutes'; // Updated to 30 minutes
                     
                     global.io.to(booking.user.toString()).emit('notification', {
                         title: 'Booking Cancelled',
@@ -69,7 +76,11 @@ export const startPaymentTimeoutJob = () => {
                 console.log(`Auto-cancelled booking ${booking._id} due to payment timeout`);
             }
         } catch (error) {
-            console.error('Payment timeout job error:', error);
+            if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
+                console.error('⚠️ MongoDB connection issue in payment timeout job - will retry next cycle');
+            } else {
+                console.error('Payment timeout job error:', error.message);
+            }
         }
     });
 

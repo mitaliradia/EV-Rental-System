@@ -1,10 +1,14 @@
 import express from 'express';
 import { protectRoute } from '../middleware/protectRoute.js';
-import { createPaymentOrder, verifyPayment } from '../controllers/paymentController.js';
+import { createPaymentOrder, verifyPayment, handlePaymentWebhook } from '../controllers/paymentController.js';
+import { paymentLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-router.post('/create-order', protectRoute, createPaymentOrder);
-router.post('/verify', protectRoute, verifyPayment);
+router.post('/create-order', protectRoute, paymentLimiter, createPaymentOrder);
+router.post('/verify', protectRoute, paymentLimiter, verifyPayment);
+
+// Webhook endpoint (no auth required - verified by signature)
+router.post('/webhook', express.raw({ type: 'application/json' }), handlePaymentWebhook);
 
 export default router;
