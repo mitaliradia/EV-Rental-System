@@ -77,13 +77,13 @@ const server = http.createServer(app);
 
 // Read the frontend URL from environment variables.
 // Default to localhost for development if the variable isn't set.
-const clientURL = process.env.CLIENT_URL || 'http://localhost:5173';
+const clientURL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 // In local development, we still want to allow multiple ports for testing.
 // In production, we'll only have one client URL.
 const allowedOrigins = process.env.NODE_ENV === 'production'
     ? [clientURL]
-    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'];
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175',];
 
 const corsOptions = {
     origin: function (origin, callback) {
