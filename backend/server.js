@@ -83,7 +83,7 @@ const clientURL = process.env.FRONTEND_URL || 'http://localhost:5173';
 // In production, we'll only have one client URL.
 const allowedOrigins = process.env.NODE_ENV === 'production'
     ? [clientURL]
-    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175',];
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175','https://ev-rental-system.onrender.com'];
 
 const corsOptions = {
     origin: function (origin, callback) {
