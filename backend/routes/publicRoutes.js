@@ -31,7 +31,7 @@ router.get('/vehicles', async(req,res) => {
             station:stationId,
             //Find bookings that are not cancelled
             status: {$in: ['pending-confirmation','confirmed','active']},
-            startTime: {$lt: requestedEndTime},.
+            startTime: {$lt: requestedEndTime},
             endTime: {$gt: requestedStartTime}
         });
 
