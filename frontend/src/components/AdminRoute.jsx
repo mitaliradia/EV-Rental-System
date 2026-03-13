@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const SuperAdminRoute = () => {
+const AdminRoute = () => {
     const { authUser, loading } = useAuth();
 
     if (loading) {
@@ -12,4 +12,4 @@ const SuperAdminRoute = () => {
     return authUser && authUser.role === 'super-admin' ? <Outlet /> : <Navigate to="/" replace />;
 };
 
-export default SuperAdminRoute;
+export default AdminRoute;

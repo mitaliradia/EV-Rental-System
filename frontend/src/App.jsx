@@ -16,7 +16,7 @@ import FavoritesPage from './pages/FavoritesPage';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import StationMasterDashboard from './pages/StationMasterDashboard';
 import VehiclesPage from './pages/VehiclesPage';
-import SuperAdminRoute from './components/SuperAdminRoute.jsx';
+import AdminRoute from './components/AdminRoute.jsx';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import StationDetailPage from './pages/StationDetailPage';
 import StationMasterRoute from './components/StationMasterRoute';
@@ -43,7 +43,7 @@ function App() {
           <Route element={<StationMasterRoute />}>
             <Route path="/dashboard" element={<StationMasterDashboard />} />
           </Route>
-          <Route element={<SuperAdminRoute />}>
+          <Route element={<AdminRoute />}>
             <Route path="/super-admin" element={<SuperAdminDashboard />} />
             <Route path="/super-admin/station/:id" element={<StationDetailPage />} />
             <Route path="/super-admin/user/:id" element={<UserDetailPage />} />
