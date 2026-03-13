@@ -16,7 +16,7 @@ import FavoritesPage from './pages/FavoritesPage';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import StationMasterDashboard from './pages/StationMasterDashboard';
 import VehiclesPage from './pages/VehiclesPage';
-import SuperAdminRoute from './components/SuperAdminRoute';
+import SuperAdminRoute from './components/SuperAdminRoute.jsx';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import StationDetailPage from './pages/StationDetailPage';
 import StationMasterRoute from './components/StationMasterRoute';
