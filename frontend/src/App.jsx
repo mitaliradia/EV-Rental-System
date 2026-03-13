@@ -1,13 +1,7 @@
-// client/src/App.jsx
-
-// --- IMPORTANT: Only import Routes and Route, NOT BrowserRouter ---
 import { Routes, Route } from 'react-router-dom';
-
 import Navbar from './components/Navbar.jsx';
 import UserRoute from './components/UserRoute.jsx';
 import PushNotifications from './components/PushNotifications.jsx';
-
-// Pages
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
@@ -24,13 +18,11 @@ import UserDetailPage from './components/super-admin/UserDetailPage.jsx';
 
 function App() {
   return (
-    // --- NO <Router> TAGS HERE ---
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
       <Navbar />
       <PushNotifications />
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Routes>
-          {/* Your routes go here */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -52,7 +44,6 @@ function App() {
         </Routes>
       </main>
     </div>
-    // --- NO <Router> TAGS HERE ---
   );
 }
 
