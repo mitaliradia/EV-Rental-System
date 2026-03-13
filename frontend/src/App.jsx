@@ -3,24 +3,24 @@
 // --- IMPORTANT: Only import Routes and Route, NOT BrowserRouter ---
 import { Routes, Route } from 'react-router-dom';
 
-import Navbar from './components/Navbar';
-import UserRoute from './components/UserRoute';
-import PushNotifications from './components/PushNotifications';
+import Navbar from './components/Navbar.jsx';
+import UserRoute from './components/UserRoute.jsx';
+import PushNotifications from './components/PushNotifications.jsx';
 
 // Pages
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ProfilePage from './pages/ProfilePage';
-import FavoritesPage from './pages/FavoritesPage';
-import AnalyticsDashboard from './pages/AnalyticsDashboard';
-import StationMasterDashboard from './pages/StationMasterDashboard';
-import VehiclesPage from './pages/VehiclesPage';
+import HomePage from './pages/HomePage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import FavoritesPage from './pages/FavoritesPage.jsx';
+import AnalyticsDashboard from './pages/AnalyticsDashboard.jsx';
+import StationMasterDashboard from './pages/StationMasterDashboard.jsx';
+import VehiclesPage from './pages/VehiclesPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import StationDetailPage from './pages/StationDetailPage';
-import StationMasterRoute from './components/StationMasterRoute';
-import UserDetailPage from './components/super-admin/UserDetailPage';
+import SuperAdminDashboard from './pages/SuperAdminDashboard.jsx';
+import StationDetailPage from './pages/StationDetailPage.jsx';
+import StationMasterRoute from './components/StationMasterRoute.jsx';
+import UserDetailPage from './components/super-admin/UserDetailPage.jsx';
 
 function App() {
   return (
