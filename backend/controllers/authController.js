@@ -1,14 +1,23 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
+const getCookieOptions = () => {
+    const frontendUrl = (process.env.FRONTEND_URL || '').trim().replace(/\/+$/, '');
+    const isLocalFrontend = frontendUrl.includes('localhost') || frontendUrl.includes('127.0.0.1');
+    const isCrossSiteProduction = Boolean(frontendUrl) && !isLocalFrontend;
+
+    return {
+        httpOnly: true,
+        secure: isCrossSiteProduction,
+        sameSite: isCrossSiteProduction ? 'none' : 'lax',
+    };
+};
+
 // Helper function to create and set the cookie
 const generateTokenAndSetCookie = (res, user) => {
-    const isProduction = process.env.NODE_ENV === 'production';
     const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.cookie('jwt', token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        ...getCookieOptions(),
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 };
@@ -44,11 +53,8 @@ export const loginUser = async (req, res) => {
 };
 
 export const logoutUser = (req, res) => {
-    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('jwt', '', {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        ...getCookieOptions(),
         expires: new Date(0),
     });
     res.status(200).json({ message: 'Logged out successfully' });
