@@ -1,10 +1,21 @@
 import jwt from 'jsonwebtoken';
 
+const extractJwtFromCookieHeader = (cookieHeader) => {
+    if (!cookieHeader) return null;
+    const jwtCookie = cookieHeader
+        .split(';')
+        .map((part) => part.trim())
+        .find((part) => part.startsWith('jwt='));
+    return jwtCookie ? decodeURIComponent(jwtCookie.slice(4)) : null;
+};
+
 // Issue #28: Socket.IO authentication middleware
 export const socketAuthMiddleware = (socket, next) => {
     try {
-        // Get token from handshake auth or query
-        const token = socket.handshake.auth.token || socket.handshake.query.token;
+        // Get token from handshake auth, query, or cookies
+        const tokenFromHandshake = socket.handshake.auth?.token || socket.handshake.query?.token;
+        const tokenFromCookie = extractJwtFromCookieHeader(socket.handshake.headers?.cookie);
+        const token = tokenFromHandshake || tokenFromCookie;
         
         if (!token) {
             console.warn('⚠️ Socket connection rejected: No token provided');

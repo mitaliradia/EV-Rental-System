@@ -2,12 +2,13 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
 // Helper function to create and set the cookie
-const generateTokenAndSetCookie = (res, userId) => {
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
+const generateTokenAndSetCookie = (res, user) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.cookie('jwt', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV !== 'development', // Use secure cookies in production
-        sameSite: 'strict',
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 };
@@ -19,7 +20,7 @@ export const registerUser = async (req, res) => {
         if (userExists) return res.status(400).json({ message: 'User already exists' });
         
         const user = await User.create({ name, email, password });
-        generateTokenAndSetCookie(res, user._id);
+        generateTokenAndSetCookie(res, user);
         
         res.status(201).json({ _id: user._id, name: user.name, email: user.email, role: user.role, kyc: user.kyc });
     } catch (error) {
@@ -32,7 +33,7 @@ export const loginUser = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (user && (await user.matchPassword(password))) {
-            generateTokenAndSetCookie(res, user._id);
+            generateTokenAndSetCookie(res, user);
             res.status(200).json({ _id: user._id, name: user.name, email: user.email, role: user.role, kyc: user.kyc });
         } else {
             res.status(401).json({ message: 'Invalid email or password' });
@@ -43,7 +44,13 @@ export const loginUser = async (req, res) => {
 };
 
 export const logoutUser = (req, res) => {
-    res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('jwt', '', {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        expires: new Date(0),
+    });
     res.status(200).json({ message: 'Logged out successfully' });
 };
 

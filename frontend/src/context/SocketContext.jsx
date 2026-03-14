@@ -11,11 +11,13 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const { authUser, setAuthUser } = useAuth();
     const navigate = useNavigate();
+    const socketBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     useEffect(() => {
         if (authUser) {
             console.log('Connecting to socket for user:', authUser._id);
-            const newSocket = io('http://localhost:5000', {
+            const newSocket = io(socketBaseUrl, {
+                withCredentials: true,
                 transports: ['websocket', 'polling']
             });
             
