@@ -30,6 +30,9 @@ const RegisterPage = () => {
         try {
             // Send the registration data to the backend API
             const { data } = await api.post('/auth/register', formData);
+            if (data?.token) {
+                localStorage.setItem('token', data.token);
+            }
             
             // On success, update the global auth state
             setAuthUser(data);
