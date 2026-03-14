@@ -11,7 +11,9 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const { authUser, setAuthUser } = useAuth();
     const navigate = useNavigate();
-    const socketBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const socketBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000')
+        .replace(/\/+$/, '')
+        .replace(/\/api$/, '');
 
     useEffect(() => {
         if (authUser) {
