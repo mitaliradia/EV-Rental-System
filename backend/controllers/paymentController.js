@@ -67,6 +67,16 @@ export const verifyPayment = async (req, res) => {
                     return res.status(404).json({ message: 'Booking not found. Refund initiated.', success: false });
                 }
 
+                // Idempotency check: reject duplicate verify requests for the same payment
+                if (booking.paymentId === razorpay_payment_id) {
+                    console.log(`Idempotent verify request for booking ${bookingId} with payment ${razorpay_payment_id}`);
+                    return res.json({ 
+                        message: 'Payment already verified for this booking.', 
+                        success: true,
+                        status: booking.paymentStatus
+                    });
+                }
+
                 // Mark as processing - webhook will confirm
                 booking.paymentStatus = 'processing';
                 booking.paymentId = razorpay_payment_id;
