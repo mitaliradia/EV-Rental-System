@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     isPhoneVerified: { type: Boolean, default: false },
     phoneOTP: { type: String },
     phoneOTPExpires: { type: Date },
-    // Driver's License Information (Issue #4)
+    // Driver's License Information 
     driverLicense: {
         number: { type: String, sparse: true },
         expiryDate: { type: Date },
@@ -22,9 +22,9 @@ const userSchema = new mongoose.Schema({
         frontImageUrl: { type: String },
         backImageUrl: { type: String }
     },
-    // Age verification (Issue #4)
+    // Age verification
     dateOfBirth: { type: Date },
-    // Security deposit tracking (Issue #5)
+    // Security deposit tracking 
     securityDeposit: {
         amount: { type: Number, default: 0 },
         isHeld: { type: Boolean, default: false },
@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
         releaseScheduledAt: { type: Date },
         transactionId: { type: String }
     },
-    // Loyalty program (Issue #33)
+    // Loyalty program 
     loyaltyPoints: { type: Number, default: 0 },
     loyaltyTier: { type: String, enum: ['bronze', 'silver', 'gold', 'platinum'], default: 'bronze' },
     totalRides: { type: Number, default: 0 },
@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
-// Indexes for performance (Issue #34)
+// Indexes for performance 
 userSchema.index({ email: 1 });
 userSchema.index({ phone: 1 });
 userSchema.index({ role: 1, station: 1 });

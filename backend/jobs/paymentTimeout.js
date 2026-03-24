@@ -8,7 +8,7 @@ export const startPaymentTimeoutJob = () => {
     cron.schedule('* * * * *', async () => {
         // Skip if MongoDB is not connected
         if (mongoose.connection.readyState !== 1) {
-            console.log('⚠️ Skipping payment timeout job - MongoDB not connected');
+            console.log('Skipping payment timeout job - MongoDB not connected');
             return;
         }
         

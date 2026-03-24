@@ -6,11 +6,35 @@ import mongoose from 'mongoose';
 import { createNotificationUtil } from '../controllers/notificationController.js';
 
 export const startCronJobs = () => {
+    // Check for unlinked payments every 10 minutes
+    cron.schedule('*/10 * * * *', async () => {
+        if (mongoose.connection.readyState !== 1) {
+            console.log('Skipping unlinked payment job - MongoDB not connected');
+            return;
+        }
+        
+        try {
+            const unlinkedPayments = await Booking.find({
+                paymentStatus: 'unlinked',
+                failedAt: { $lt: new Date(Date.now() - 5 * 60 * 1000) } // Failed 5+ min ago
+            });
+            
+            for (const booking of unlinkedPayments) {
+                console.log(`Processing unlinked payment for booking ${booking._id}`);
+                // Refund will be handled by handleUnlinkedPayment in paymentController
+            }
+            
+            console.log(`Processed ${unlinkedPayments.length} unlinked payments`);
+        } catch (error) {
+            console.error('Error in unlinked payment job:', error.message);
+        }
+    });
+
     // Check for unconfirmed bookings every 5 minutes
     cron.schedule('*/5 * * * *', async () => {
         // Skip if MongoDB is not connected
         if (mongoose.connection.readyState !== 1) {
-            console.log('⚠️ Skipping confirmation timeout job - MongoDB not connected');
+            console.log('Skipping confirmation timeout job - MongoDB not connected');
             return;
         }
         
@@ -51,7 +75,7 @@ export const startCronJobs = () => {
             console.log(`Processed ${unconfirmedBookings.length} unconfirmed bookings`);
         } catch (error) {
             if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
-                console.error('⚠️ MongoDB connection issue in confirmation timeout job - will retry next cycle');
+                console.error('MongoDB connection issue in confirmation timeout job - will retry next cycle');
             } else {
                 console.error('Error in confirmation timeout job:', error.message);
             }
@@ -62,7 +86,7 @@ export const startCronJobs = () => {
     cron.schedule('*/5 * * * *', async () => {
         // Skip if MongoDB is not connected
         if (mongoose.connection.readyState !== 1) {
-            console.log('⚠️ Skipping overtime billing job - MongoDB not connected');
+            console.log('Skipping overtime billing job - MongoDB not connected');
             return;
         }
         

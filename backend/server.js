@@ -47,25 +47,25 @@ const connectDB = async () => {
     
     try {
         await mongoose.connect(process.env.MONGO_URI, options);
-        console.log('✅ MongoDB Connected successfully');
+        console.log('MongoDB Connected successfully');
     } catch (err) {
-        console.error('❌ MongoDB Connection Error:', err.message);
-        console.log('🔄 Retrying connection in 5 seconds...');
+        console.error('MongoDB Connection Error:', err.message);
+        console.log('Retrying connection in 5 seconds...');
         setTimeout(connectDB, 5000);
     }
 };
 
 // Handle connection events
 mongoose.connection.on('disconnected', () => {
-    console.warn('⚠️ MongoDB disconnected. Attempting to reconnect...');
+    console.warn('MongoDB disconnected. Attempting to reconnect...');
 });
 
 mongoose.connection.on('error', (err) => {
-    console.error('❌ MongoDB error:', err.message);
+    console.error('MongoDB error:', err.message);
 });
 
 mongoose.connection.on('reconnected', () => {
-    console.log('✅ MongoDB reconnected');
+    console.log('MongoDB reconnected');
 });
 
 connectDB();
@@ -75,8 +75,6 @@ const app = express();
 //Create an HTTP server from the Express app
 const server = http.createServer(app);
 
-// Read the frontend URL from environment variables.
-// Default to localhost for development if the variable isn't set.
 const clientURL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const normalizeOrigin = (url) => url.replace(/\/+$/, '');
 
@@ -93,7 +91,7 @@ const corsOptions = {
         if (!origin || allowedOrigins.indexOf(normalizeOrigin(origin)) !== -1) {
             callback(null, true); // Allow the request
         } else {
-            console.warn(`⚠️ CORS blocked request from: ${origin}`);
+            console.warn(`CORS blocked request from: ${origin}`);
             console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
             callback(new Error(`Not allowed by CORS. Origin: ${origin}`)); // Block the request
         }
@@ -111,7 +109,6 @@ app.use(cookieParser());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
-// --- UPDATE THE SOCKET.IO CORS CONFIGURATION AS WELL ---
 const io = new Server(server, {
     cors: {
         origin: allowedOrigins, // We can directly use the array here
@@ -120,30 +117,46 @@ const io = new Server(server, {
     }
 });
 
-// Issue #28: Socket.IO authentication middleware
+// Socket.IO authentication middleware
 io.use(socketAuthMiddleware);
 
 // Handle socket connections with room access control
 io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.userId}`);
+    console.log(`✅ User connected: ${socket.userId} (${socket.id})`);
     
     // Automatically join user's personal room
     socket.join(socket.userId);
+    console.log(`📍 Socket ${socket.id} auto-joined personal room: ${socket.userId}`);
     
-    // Handle room join requests with validation
+    // Handle generic room join requests with validation
     socket.on('join_room', (roomName) => {
         if (validateRoomAccess(socket, roomName)) {
             socket.join(roomName);
-            console.log(`User ${socket.userId} joined room: ${roomName}`);
+            console.log(`✅ User ${socket.userId} joined room: ${roomName}`);
         } else {
             socket.emit('error', { message: 'Unauthorized room access' });
-            console.log(`User ${socket.userId} denied access to room: ${roomName}`);
+            console.log(`❌ User ${socket.userId} denied access to room: ${roomName}`);
         }
     });
     
+    // Handle role-based room joining (for backward compatibility with frontend)
+    socket.on('joinAdminRooms', (user) => {
+        if (user.role === 'super-admin') {
+            socket.join('super_admin_room');
+            console.log(`👑 Socket ${socket.id} joined SUPER ADMIN room`);
+        }
+        if (user.role === 'station-master' && user.station) {
+            socket.join(`station_${user.station}`);
+            console.log(`🔧 Socket ${socket.id} joined station room: station_${user.station}`);
+        }
+    });
+    
+    // Log current rooms for debugging
+    console.log(`📋 Current rooms for socket ${socket.id}:`, Array.from(socket.rooms));
+    
     // Handle disconnect
     socket.on('disconnect', () => {
-        console.log(`User disconnected: ${socket.userId}`);
+        console.log(`❌ User disconnected: ${socket.userId} (${socket.id})`);
     });
 });
 
@@ -167,35 +180,10 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/favorites', favoriteRoutes);
-app.use('/api/payments', paymentRoutes);app.use('/api/refund', refundRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/refund', refundRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
-//Socket.IO connection logic
-io.on('connection',(socket)=>{
-    console.log('A user connected:',socket.id);
-
-    // Create a "room" for a specific user
-    socket.on('joinUserRoom',(userId) => {
-        socket.join(userId);
-        console.log(`Socket ${socket.id} joined room for user ID: ${userId}`);
-        console.log('Current rooms for socket:', socket.rooms);
-    });
-
-    socket.on('joinAdminRooms',(user)=>{
-        if(user.role==='super-admin'){
-            socket.join('super_admin_room');
-            console.log(`Socket ${socket.id} joined SUPER ADMIN room`);
-        }
-        if (user.role === 'station-master' && user.station) {
-            socket.join(`station_${user.station}`);
-            console.log(`Socket ${socket.id} joined room for station: ${user.station}`);
-        }
-    })
-
-    socket.on('disconnect',()=> {
-        console.log('User disconnected:',socket.id);
-    });
-})
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

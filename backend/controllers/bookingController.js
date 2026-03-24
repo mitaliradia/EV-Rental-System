@@ -168,7 +168,7 @@ export const createBooking = async (req, res) => {
                     io.to(req.user._id.toString()).emit('booking_reminder', {
                         message: 'Your ride starts in 1 hour!',
                         booking: booking[0]._id
-                    });
+                    });                                                                                       
                 }, reminderTime.getTime() - Date.now());
             }
         }

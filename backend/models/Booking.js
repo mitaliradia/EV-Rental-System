@@ -8,12 +8,14 @@ const bookingSchema = new mongoose.Schema({
     totalCost: { type: Number, required: true },
     station: { type: mongoose.Schema.Types.ObjectId, ref: 'Station', required: true },
     status: { type: String, enum: [ 'confirmed', 'active', 'completed', 'cancelled','pending-confirmation'], default: 'pending-confirmation' },
-    paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
+    paymentStatus: { type: String, enum: ['pending', 'completed', 'failed', 'unlinked'], default: 'pending' },
     paymentId: { type: String },
-    paymentDeadline: { type: Date }, // Smart deadline: 30 min immediate, 2 hours advance
-    confirmationDeadline: { type: Date }, // Smart deadline: 15 min immediate, 4 hours advance
-    paymentReminderSent: { type: Boolean, default: false }, // Track if reminder was sent
-    // Security deposit (Issue #5)
+    paymentDeadline: { type: Date },
+    confirmationDeadline: { type: Date },
+    paymentReminderSent: { type: Boolean, default: false },
+    failureReason: { type: String },
+    failedAt: { type: Date },
+    // Security deposit
     securityDeposit: {
         amount: { type: Number, default: 0 },
         status: { type: String, enum: ['pending', 'held', 'released', 'deducted'], default: 'pending' },
@@ -23,7 +25,7 @@ const bookingSchema = new mongoose.Schema({
         deductionReason: { type: String },
         transactionId: { type: String }
     },
-    // Overtime charges (Issue #6)
+    // Overtime charges
     overtimeCharges: {
         isOvertime: { type: Boolean, default: false },
         overtimeHours: { type: Number, default: 0 },
@@ -32,7 +34,7 @@ const bookingSchema = new mongoose.Schema({
         gracePeriodMinutes: { type: Number, default: 15 }, // Grace period before overtime kicks in
         lastCalculatedAt: { type: Date }
     },
-    // Refund tracking (Issue #7)
+    // Refund tracking
     refund: {
         status: { type: String, enum: ['none', 'pending', 'processing', 'completed', 'failed'], default: 'none' },
         amount: { type: Number, default: 0 },
@@ -40,9 +42,10 @@ const bookingSchema = new mongoose.Schema({
         requestedAt: { type: Date },
         processedAt: { type: Date },
         refundId: { type: String },
-        refundMethod: { type: String, enum: ['original', 'wallet', 'bank'], default: 'original' }
+        refundMethod: { type: String, enum: ['original', 'wallet', 'bank'], default: 'original' },
+        initiatedAt: { type: Date }
     },
-    // Return location (Issue #15)
+    // Return location
     returnStation: { type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     oneWayFee: { type: Number, default: 0 },
     modifications: [{
@@ -59,7 +62,7 @@ const bookingSchema = new mongoose.Schema({
     }]
 }, { timestamps: true });
 
-// Indexes for performance (Issue #34)
+// Indexes for performance
 bookingSchema.index({ user: 1, status: 1 });
 bookingSchema.index({ vehicle: 1, status: 1, startTime: 1, endTime: 1 });
 bookingSchema.index({ station: 1, status: 1 });

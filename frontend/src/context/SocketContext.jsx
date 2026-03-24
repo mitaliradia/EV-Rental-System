@@ -25,7 +25,8 @@ export const SocketProvider = ({ children }) => {
             
             newSocket.on('connect', () => {
                 console.log('Socket connected:', newSocket.id);
-                newSocket.emit('joinUserRoom', authUser._id);
+                // Personal room is auto-joined by backend
+                // Only need to join role-based rooms
                 newSocket.emit('joinAdminRooms', authUser);
             });
             

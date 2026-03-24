@@ -60,56 +60,54 @@ export const verifyPayment = async (req, res) => {
             .digest("hex");
 
         if (razorpay_signature === expectedSign) {
-            // Payment verified successfully
-            const booking = await Booking.findById(bookingId);
-            booking.paymentStatus = 'completed';
-            booking.paymentId = razorpay_payment_id;
-            booking.status = 'confirmed';
-            
-            // Update security deposit status
-            if (booking.securityDeposit?.amount > 0) {
-                booking.securityDeposit.status = 'held';
-                booking.securityDeposit.heldAt = new Date();
-                booking.securityDeposit.transactionId = razorpay_payment_id;
-                // Schedule deposit release 24 hours after ride completion
-                const estimatedReleaseTime = new Date(booking.endTime);
-                estimatedReleaseTime.setHours(estimatedReleaseTime.getHours() + 24);
-                booking.securityDeposit.releaseScheduledAt = estimatedReleaseTime;
-            }
-            
-            await booking.save();
-            
-            // Award loyalty points (Issue #33)
-            const user = await User.findById(booking.user);
-            const pointsEarned = Math.floor(booking.totalCost / 100); // 1 point per 100 spent
-            user.loyaltyPoints += pointsEarned;
-            user.totalSpent += booking.totalCost;
-            
-            // Update loyalty tier based on total spent
-            if (user.totalSpent >= 50000) {
-                user.loyaltyTier = 'platinum';
-            } else if (user.totalSpent >= 25000) {
-                user.loyaltyTier = 'gold';
-            } else if (user.totalSpent >= 10000) {
-                user.loyaltyTier = 'silver';
-            }
-            
-            await user.save();
-            
-            // Record loyalty transaction
-            await LoyaltyTransaction.create({
-                user: user._id,
-                type: 'earned',
-                points: pointsEarned,
-                booking: bookingId,
-                description: `Earned ${pointsEarned} points for booking`
-            });
+            try {
+                const booking = await Booking.findById(bookingId);
+                if (!booking) {
+                    // Payment succeeded but booking not found - initiate refund
+                    await initiateRefund(razorpay_payment_id, 'Booking not found', bookingId);
+                    return res.status(404).json({ message: 'Booking not found. Refund initiated.', success: false });
+                }
 
-            res.json({ 
-                message: 'Payment verified successfully', 
-                success: true,
-                loyaltyPoints: pointsEarned
-            });
+                booking.paymentStatus = 'completed';
+                booking.paymentId = razorpay_payment_id;
+                booking.status = 'confirmed';
+                
+                if (booking.securityDeposit?.amount > 0) {
+                    booking.securityDeposit.status = 'held';
+                    booking.securityDeposit.heldAt = new Date();
+                    booking.securityDeposit.transactionId = razorpay_payment_id;
+                    const estimatedReleaseTime = new Date(booking.endTime);
+                    estimatedReleaseTime.setHours(estimatedReleaseTime.getHours() + 24);
+                    booking.securityDeposit.releaseScheduledAt = estimatedReleaseTime;
+                }
+                
+                await booking.save();
+                
+                const user = await User.findById(booking.user);
+                const pointsEarned = Math.floor(booking.totalCost / 100);
+                user.loyaltyPoints += pointsEarned;
+                user.totalSpent += booking.totalCost;
+                
+                if (user.totalSpent >= 50000) user.loyaltyTier = 'platinum';
+                else if (user.totalSpent >= 25000) user.loyaltyTier = 'gold';
+                else if (user.totalSpent >= 10000) user.loyaltyTier = 'silver';
+                
+                await user.save();
+                await LoyaltyTransaction.create({
+                    user: user._id,
+                    type: 'earned',
+                    points: pointsEarned,
+                    booking: bookingId,
+                    description: `Earned ${pointsEarned} points for booking`
+                });
+
+                res.json({ message: 'Payment verified successfully', success: true, loyaltyPoints: pointsEarned });
+            } catch (bookingError) {
+                // Payment verified but booking update failed - mark as unlinked and initiate refund
+                console.error('Booking update failed after payment:', bookingError);
+                await handleUnlinkedPayment(razorpay_payment_id, bookingId, bookingError.message);
+                res.status(500).json({ message: 'Payment received but booking failed. Refund initiated.', success: false });
+            }
         } else {
             res.status(400).json({ message: 'Invalid payment signature', success: false });
         }
@@ -165,22 +163,36 @@ export const handlePaymentWebhook = async (req, res) => {
 
 async function handlePaymentCaptured(payment) {
     const bookingId = payment.notes?.bookingId;
-    if (!bookingId) return;
+    if (!bookingId) {
+        console.error('Payment captured without bookingId:', payment.id);
+        return;
+    }
     
-    const booking = await Booking.findById(bookingId);
-    if (booking && booking.paymentStatus !== 'completed') {
-        booking.paymentStatus = 'completed';
-        booking.paymentId = payment.id;
-        booking.status = 'confirmed';
-        
-        if (booking.securityDeposit?.amount > 0) {
-            booking.securityDeposit.status = 'held';
-            booking.securityDeposit.heldAt = new Date();
-            booking.securityDeposit.transactionId = payment.id;
+    try {
+        const booking = await Booking.findById(bookingId);
+        if (!booking) {
+            console.error(`Booking ${bookingId} not found for payment ${payment.id}`);
+            await handleUnlinkedPayment(payment.id, bookingId, 'Booking not found');
+            return;
         }
         
-        await booking.save();
-        console.log(`Payment captured for booking ${bookingId}`);
+        if (booking.paymentStatus !== 'completed') {
+            booking.paymentStatus = 'completed';
+            booking.paymentId = payment.id;
+            booking.status = 'confirmed';
+            
+            if (booking.securityDeposit?.amount > 0) {
+                booking.securityDeposit.status = 'held';
+                booking.securityDeposit.heldAt = new Date();
+                booking.securityDeposit.transactionId = payment.id;
+            }
+            
+            await booking.save();
+            console.log(`Payment captured for booking ${bookingId}`);
+        }
+    } catch (error) {
+        console.error(`Failed to update booking ${bookingId} after payment capture:`, error);
+        await handleUnlinkedPayment(payment.id, bookingId, error.message);
     }
 }
 
@@ -197,11 +209,69 @@ async function handlePaymentFailed(payment) {
 }
 
 async function handleRefundProcessed(refund) {
-    // Update refund status to completed
     const booking = await Booking.findOne({ 'refund.refundId': refund.id });
     if (booking) {
         booking.refund.status = 'completed';
         await booking.save();
         console.log(`Refund completed for booking ${booking._id}`);
+    }
+}
+
+async function handleUnlinkedPayment(paymentId, bookingId, reason) {
+    console.error(`Unlinked payment detected: ${paymentId} for booking ${bookingId}. Reason: ${reason}`);
+    
+    const booking = await Booking.findById(bookingId);
+    if (booking) {
+        booking.paymentStatus = 'unlinked';
+        booking.paymentId = paymentId;
+        booking.failureReason = reason;
+        booking.failedAt = new Date();
+        await booking.save();
+    }
+    
+    // Retry booking update once
+    try {
+        if (booking && booking.paymentStatus === 'unlinked') {
+            booking.paymentStatus = 'completed';
+            booking.status = 'confirmed';
+            await booking.save();
+            console.log(`Retry successful for booking ${bookingId}`);
+            return;
+        }
+    } catch (retryError) {
+        console.error(`Retry failed for booking ${bookingId}:`, retryError);
+    }
+    
+    // Initiate refund if retry fails
+    await initiateRefund(paymentId, reason, bookingId);
+}
+
+async function initiateRefund(paymentId, reason, bookingId) {
+    try {
+        const razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+        
+        const refund = await razorpay.payments.refund(paymentId, {
+            notes: { reason, bookingId }
+        });
+        
+        const booking = await Booking.findById(bookingId);
+        if (booking) {
+            booking.refund = {
+                refundId: refund.id,
+                amount: refund.amount / 100,
+                status: 'processing',
+                reason,
+                initiatedAt: new Date()
+            };
+            booking.status = 'cancelled';
+            await booking.save();
+        }
+        
+        console.log(`Refund initiated: ${refund.id} for payment ${paymentId}`);
+    } catch (error) {
+        console.error(`Refund initiation failed for payment ${paymentId}:`, error);
     }
 }

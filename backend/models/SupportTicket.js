@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-// Support ticket system (Issue #32)
+// Support ticket system 
 const supportTicketSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     booking: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking' },
