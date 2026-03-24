@@ -63,47 +63,22 @@ export const verifyPayment = async (req, res) => {
             try {
                 const booking = await Booking.findById(bookingId);
                 if (!booking) {
-                    // Payment succeeded but booking not found - initiate refund
                     await initiateRefund(razorpay_payment_id, 'Booking not found', bookingId);
                     return res.status(404).json({ message: 'Booking not found. Refund initiated.', success: false });
                 }
 
-                booking.paymentStatus = 'completed';
+                // Mark as processing - webhook will confirm
+                booking.paymentStatus = 'processing';
                 booking.paymentId = razorpay_payment_id;
-                booking.status = 'confirmed';
-                
-                if (booking.securityDeposit?.amount > 0) {
-                    booking.securityDeposit.status = 'held';
-                    booking.securityDeposit.heldAt = new Date();
-                    booking.securityDeposit.transactionId = razorpay_payment_id;
-                    const estimatedReleaseTime = new Date(booking.endTime);
-                    estimatedReleaseTime.setHours(estimatedReleaseTime.getHours() + 24);
-                    booking.securityDeposit.releaseScheduledAt = estimatedReleaseTime;
-                }
-                
                 await booking.save();
                 
-                const user = await User.findById(booking.user);
-                const pointsEarned = Math.floor(booking.totalCost / 100);
-                user.loyaltyPoints += pointsEarned;
-                user.totalSpent += booking.totalCost;
-                
-                if (user.totalSpent >= 50000) user.loyaltyTier = 'platinum';
-                else if (user.totalSpent >= 25000) user.loyaltyTier = 'gold';
-                else if (user.totalSpent >= 10000) user.loyaltyTier = 'silver';
-                
-                await user.save();
-                await LoyaltyTransaction.create({
-                    user: user._id,
-                    type: 'earned',
-                    points: pointsEarned,
-                    booking: bookingId,
-                    description: `Earned ${pointsEarned} points for booking`
+                // Return success immediately - webhook will complete the flow
+                res.json({ 
+                    message: 'Payment verification in progress. Your booking will be confirmed shortly.', 
+                    success: true,
+                    status: 'processing'
                 });
-
-                res.json({ message: 'Payment verified successfully', success: true, loyaltyPoints: pointsEarned });
             } catch (bookingError) {
-                // Payment verified but booking update failed - mark as unlinked and initiate refund
                 console.error('Booking update failed after payment:', bookingError);
                 await handleUnlinkedPayment(razorpay_payment_id, bookingId, bookingError.message);
                 res.status(500).json({ message: 'Payment received but booking failed. Refund initiated.', success: false });
@@ -122,11 +97,17 @@ export const handlePaymentWebhook = async (req, res) => {
     try {
         const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
         const webhookSignature = req.headers['x-razorpay-signature'];
+        const rawBody = Buffer.isBuffer(req.body)
+            ? req.body
+            : Buffer.from(JSON.stringify(req.body || {}));
+        const parsedBody = Buffer.isBuffer(req.body)
+            ? JSON.parse(rawBody.toString('utf8'))
+            : req.body;
         
         // Verify webhook signature
         const expectedSignature = crypto
             .createHmac('sha256', webhookSecret)
-            .update(JSON.stringify(req.body))
+            .update(rawBody)
             .digest('hex');
         
         if (webhookSignature !== expectedSignature) {
@@ -134,8 +115,11 @@ export const handlePaymentWebhook = async (req, res) => {
             return res.status(400).json({ message: 'Invalid signature' });
         }
         
-        const event = req.body.event;
-        const payload = req.body.payload.payment.entity;
+        const event = parsedBody.event;
+        const payload = parsedBody.payload?.payment?.entity;
+        if (!event || !payload) {
+            return res.status(400).json({ message: 'Invalid webhook payload' });
+        }
         
         console.log(`Webhook received: ${event}`);
         
@@ -176,6 +160,7 @@ async function handlePaymentCaptured(payment) {
             return;
         }
         
+        // Only update if not already completed (idempotency)
         if (booking.paymentStatus !== 'completed') {
             booking.paymentStatus = 'completed';
             booking.paymentId = payment.id;
@@ -188,7 +173,46 @@ async function handlePaymentCaptured(payment) {
             }
             
             await booking.save();
-            console.log(`Payment captured for booking ${bookingId}`);
+
+            const user = await User.findById(booking.user);
+            if (user) {
+                const pointsEarned = Math.floor(booking.totalCost / 100);
+                const existingTxn = await LoyaltyTransaction.findOne({
+                    user: user._id,
+                    booking: booking._id,
+                    type: 'earned'
+                });
+
+                if (!existingTxn) {
+                    user.loyaltyPoints += pointsEarned;
+                    user.totalSpent += booking.totalCost;
+
+                    if (user.totalSpent >= 50000) user.loyaltyTier = 'platinum';
+                    else if (user.totalSpent >= 25000) user.loyaltyTier = 'gold';
+                    else if (user.totalSpent >= 10000) user.loyaltyTier = 'silver';
+
+                    await user.save();
+                    await LoyaltyTransaction.create({
+                        user: user._id,
+                        type: 'earned',
+                        points: pointsEarned,
+                        booking: booking._id,
+                        description: `Earned ${pointsEarned} points for booking`
+                    });
+                }
+            }
+            
+            // Notify user via socket
+            if (global.io) {
+                global.io.to(booking.user.toString()).emit('booking_confirmed', {
+                    bookingId: booking._id,
+                    message: 'Your booking has been confirmed via webhook!'
+                });
+            }
+            
+            console.log(`✅ Webhook: Payment captured for booking ${bookingId}`);
+        } else {
+            console.log(`ℹ️ Webhook: Booking ${bookingId} already completed (idempotent)`);
         }
     } catch (error) {
         console.error(`Failed to update booking ${bookingId} after payment capture:`, error);
@@ -203,7 +227,27 @@ async function handlePaymentFailed(payment) {
     const booking = await Booking.findById(bookingId);
     if (booking) {
         booking.paymentStatus = 'failed';
+        booking.failureReason = payment.error_description || 'Payment failed from webhook';
+        booking.failedAt = new Date();
+        booking.status = 'cancelled';
         await booking.save();
+
+        if (booking.vehicle) {
+            await Vehicle.findByIdAndUpdate(booking.vehicle, {
+                status: 'available',
+                availableAfter: null
+            });
+        }
+
+        if (global.io) {
+            global.io.to(booking.user.toString()).emit('notification', {
+                title: 'Payment Failed',
+                message: 'Your payment failed and the booking was cancelled. Please retry booking.',
+                type: 'payment',
+                priority: 'high'
+            });
+        }
+
         console.log(`Payment failed for booking ${bookingId}`);
     }
 }

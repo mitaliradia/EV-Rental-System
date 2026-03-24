@@ -8,7 +8,7 @@ const bookingSchema = new mongoose.Schema({
     totalCost: { type: Number, required: true },
     station: { type: mongoose.Schema.Types.ObjectId, ref: 'Station', required: true },
     status: { type: String, enum: [ 'confirmed', 'active', 'completed', 'cancelled','pending-confirmation'], default: 'pending-confirmation' },
-    paymentStatus: { type: String, enum: ['pending', 'completed', 'failed', 'unlinked'], default: 'pending' },
+    paymentStatus: { type: String, enum: ['pending', 'processing', 'completed', 'failed', 'unlinked'], default: 'pending' },
     paymentId: { type: String },
     paymentDeadline: { type: Date },
     confirmationDeadline: { type: Date },

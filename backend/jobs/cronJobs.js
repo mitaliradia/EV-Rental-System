@@ -6,6 +6,43 @@ import mongoose from 'mongoose';
 import { createNotificationUtil } from '../controllers/notificationController.js';
 
 export const startCronJobs = () => {
+    // Check for stuck processing payments every 5 minutes
+    cron.schedule('*/5 * * * *', async () => {
+        if (mongoose.connection.readyState !== 1) {
+            console.log('Skipping stuck payment job - MongoDB not connected');
+            return;
+        }
+        
+        try {
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+            
+            // Find payments stuck in processing for 5+ minutes
+            const stuckPayments = await Booking.find({
+                paymentStatus: 'processing',
+                updatedAt: { $lt: fiveMinutesAgo }
+            });
+            
+            for (const booking of stuckPayments) {
+                console.log(`Found stuck payment for booking ${booking._id}`);
+
+                // Keep payment in processing until Razorpay webhook confirms success/failure.
+                // This avoids false failures when webhook delivery is delayed.
+                if (global.io) {
+                    global.io.to(booking.user.toString()).emit('notification', {
+                        title: 'Payment Under Verification',
+                        message: 'Your payment is still being verified. Your booking will update automatically once confirmed.',
+                        type: 'payment',
+                        priority: 'medium'
+                    });
+                }
+            }
+            
+            console.log(`Processed ${stuckPayments.length} stuck payments`);
+        } catch (error) {
+            console.error('Error in stuck payment job:', error.message);
+        }
+    });
+
     // Check for unlinked payments every 10 minutes
     cron.schedule('*/10 * * * *', async () => {
         if (mongoose.connection.readyState !== 1) {

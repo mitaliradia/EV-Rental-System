@@ -20,17 +20,23 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                 order_id: data.orderId,
                 handler: async (response) => {
                     try {
-                        await api.post('/payments/verify', {
+                        const verifyResponse = await api.post('/payments/verify', {
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature,
                             bookingId: booking._id
                         });
                         
+                        if (verifyResponse.data.status === 'processing') {
+                            alert('Payment submitted successfully! Your booking will be confirmed shortly.');
+                        } else {
+                            alert('Payment successful! Booking confirmed.');
+                        }
+                        
                         onSuccess();
                         onClose();
                     } catch (error) {
-                        alert('Payment verification failed');
+                        alert('Payment verification failed. Please contact support if amount was deducted.');
                     }
                 },
                 prefill: {

@@ -9,6 +9,6 @@ router.post('/create-order', protectRoute, paymentLimiter, createPaymentOrder);
 router.post('/verify', protectRoute, paymentLimiter, verifyPayment);
 
 // Webhook endpoint (no auth required - verified by signature)
-router.post('/webhook', express.raw({ type: 'application/json' }), handlePaymentWebhook);
+router.post('/webhook', handlePaymentWebhook);
 
 export default router;

@@ -8,6 +8,7 @@ import EmergencyButton from "./EmergencyButton.jsx"
 import ReviewModal from "./ReviewModal.jsx"
 import PaymentModal from "./PaymentModal.jsx"
 import CountdownTimer from "./CountdownTimer.jsx"
+import { useSocket } from "../context/SocketContext.jsx"
 
 export default function MyBookings() {
   const [items, setItems] = useState([])
@@ -17,6 +18,7 @@ export default function MyBookings() {
   const [chatModal, setChatModal] = useState(null)
   const [reviewModal, setReviewModal] = useState(null)
   const [paymentModal, setPaymentModal] = useState(null)
+  const socket = useSocket()
 
   const fetchBookings = async () => {
     try {
@@ -32,6 +34,25 @@ export default function MyBookings() {
   useEffect(() => {
     fetchBookings()
   }, [])
+
+  useEffect(() => {
+    if (!socket) return
+
+    const refreshBookings = () => fetchBookings()
+    const handleNotification = (payload) => {
+      if (payload?.type === 'payment' || payload?.type === 'booking') {
+        refreshBookings()
+      }
+    }
+
+    socket.on('booking_confirmed', refreshBookings)
+    socket.on('notification', handleNotification)
+
+    return () => {
+      socket.off('booking_confirmed', refreshBookings)
+      socket.off('notification', handleNotification)
+    }
+  }, [socket])
 
   const canModify = (booking) => {
     return ['pending-confirmation', 'confirmed'].includes(booking.status) && booking.paymentStatus === 'completed'
@@ -53,6 +74,16 @@ export default function MyBookings() {
       case 'cancelled': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-800'
       case 'pending-confirmation': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'
       default: return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-600'
+    }
+  }
+
+  const getPaymentStatusBadge = (paymentStatus) => {
+    switch (paymentStatus) {
+      case 'pending': return { text: 'Payment Pending', color: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400' }
+      case 'processing': return { text: 'Payment Processing', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 animate-pulse' }
+      case 'completed': return { text: 'Paid', color: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' }
+      case 'failed': return { text: 'Payment Failed', color: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400' }
+      default: return null
     }
   }
 
@@ -91,6 +122,11 @@ export default function MyBookings() {
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
                     {booking.status.replace('-', ' ').toUpperCase()}
                   </span>
+                  {getPaymentStatusBadge(booking.paymentStatus) && (
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusBadge(booking.paymentStatus).color}`}>
+                      {getPaymentStatusBadge(booking.paymentStatus).text}
+                    </span>
+                  )}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
                   <div className="flex items-center gap-2">
