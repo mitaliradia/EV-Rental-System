@@ -148,15 +148,27 @@ export const startCronJobs = () => {
                     
                     const overtimeRate = ride.overtimeCharges?.overtimeRate || ride.vehicle.pricePerHour * 1.5;
                     const overtimeCost = overtimeHours * overtimeRate;
+                    const previousOvertimeHours = ride.overtimeCharges?.overtimeHours || 0;
+                    const previousOvertimeCost = ride.overtimeCharges?.overtimeCost || 0;
+
+                    // Recompute planned base cost each run so cron is idempotent after crashes/retries.
+                    const plannedDurationHours = Math.max(
+                        0,
+                        (new Date(ride.endTime).getTime() - new Date(ride.startTime).getTime()) / (1000 * 60 * 60)
+                    );
+                    const oneWayFee = ride.oneWayFee || 0;
+                    const plannedBaseCost = (plannedDurationHours * ride.vehicle.pricePerHour) + oneWayFee;
                     
                     // Update booking with overtime charges
                     ride.overtimeCharges.isOvertime = true;
                     ride.overtimeCharges.overtimeHours = overtimeHours;
                     ride.overtimeCharges.overtimeCost = overtimeCost;
                     ride.overtimeCharges.lastCalculatedAt = now;
-                    ride.totalCost += overtimeCost;
+                    ride.totalCost = plannedBaseCost + overtimeCost;
                     
                     await ride.save();
+
+                    const overtimeChanged = previousOvertimeHours !== overtimeHours || previousOvertimeCost !== overtimeCost;
                     
                     // Notify station master
                     const stationMaster = await User.findOne({
@@ -164,7 +176,7 @@ export const startCronJobs = () => {
                         role: 'station-master'
                     });
                     
-                    if (stationMaster) {
+                    if (stationMaster && overtimeChanged) {
                         await createNotificationUtil(
                             stationMaster._id,
                             'Overdue Ride - Overtime Charges Applied',
@@ -177,15 +189,17 @@ export const startCronJobs = () => {
                     }
                     
                     // Notify user about overtime charges
-                    await createNotificationUtil(
-                        ride.user._id,
-                        'Overtime Charges Applied',
-                        `Your ride is ${overtimeHours} hour(s) overdue. ₹${overtimeCost} overtime charges have been added. Please return the vehicle immediately to avoid further charges.`,
-                        'reminder',
-                        'urgent',
-                        {},
-                        global.io
-                    );
+                    if (overtimeChanged) {
+                        await createNotificationUtil(
+                            ride.user._id,
+                            'Overtime Charges Applied',
+                            `Your ride is ${overtimeHours} hour(s) overdue. ₹${overtimeCost} overtime charges have been added. Please return the vehicle immediately to avoid further charges.`,
+                            'reminder',
+                            'urgent',
+                            {},
+                            global.io
+                        );
+                    }
                     
                     console.log(`Applied overtime charge of ₹${overtimeCost} to booking ${ride._id}`);
                 } else {
