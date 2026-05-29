@@ -75,14 +75,25 @@ const app = express();
 //Create an HTTP server from the Express app
 const server = http.createServer(app);
 
-const clientURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const clientURL = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
 const normalizeOrigin = (url) => url.replace(/\/+$/, '');
+const localhostOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:5175',
+];
 
 // In local development, we still want to allow multiple ports for testing.
 // In production, we'll only have one client URL.
 const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? clientURL.split(',').map((origin) => normalizeOrigin(origin.trim())).filter(Boolean)
-    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175','https://ev-rental-system.onrender.com'];
+    ? [
+        ...clientURL.split(',').map((origin) => normalizeOrigin(origin.trim())).filter(Boolean),
+        ...localhostOrigins,
+    ]
+    : [...localhostOrigins, 'https://ev-rental-system.onrender.com'];
 
 const corsOptions = {
     origin: function (origin, callback) {

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const CustomerManager = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [deletingUserId, setDeletingUserId] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
     const [dateFilter, setDateFilter] = useState('');
     const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' });
@@ -48,6 +49,21 @@ const CustomerManager = () => {
             key,
             direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
         }));
+    };
+
+    const handleDeleteUser = async (userId, userName) => {
+        if (!window.confirm(`Delete ${userName}'s account? This action cannot be undone.`)) return;
+
+        setDeletingUserId(userId);
+        try {
+            await api.delete(`/super-admin/users/regular/${userId}`);
+            setUsers(prev => prev.filter(user => user._id !== userId));
+        } catch (error) {
+            const message = error.response?.data?.message || 'Failed to delete user.';
+            alert(message);
+        } finally {
+            setDeletingUserId(null);
+        }
     };
 
     return (
@@ -137,8 +153,15 @@ const CustomerManager = () => {
                                     <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{user.name}</td>
                                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{user.email}</td>
                                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{new Date(user.createdAt).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 space-x-4">
                                         <Link to={`/super-admin/user/${user._id}`} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors duration-200">View Details</Link>
+                                        <button
+                                            onClick={() => handleDeleteUser(user._id, user.name)}
+                                            disabled={deletingUserId === user._id}
+                                            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium transition-colors duration-200 disabled:opacity-60"
+                                        >
+                                            {deletingUserId === user._id ? 'Deleting...' : 'Delete'}
+                                        </button>
                                     </td>
                                 </tr>
                             )) : (

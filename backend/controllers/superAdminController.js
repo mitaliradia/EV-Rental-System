@@ -1,5 +1,11 @@
 import Booking from "../models/Booking.js";
+import Favorite from "../models/Favorite.js";
+import LoyaltyTransaction from "../models/LoyaltyTransaction.js";
+import Message from "../models/Message.js";
+import Notification from "../models/Notification.js";
+import Review from "../models/Review.js";
 import Station from "../models/Station.js";
+import SupportTicket from "../models/SupportTicket.js";
 import User from "../models/User.js";
 import Vehicle from "../models/Vehicle.js";
 import { createNotificationUtil } from './notificationController.js';
@@ -569,6 +575,54 @@ export const getAllRegularUsers = async (req, res) => {
     } catch (error) {
         console.error('Error in getAllRegularUsers:', error);
         res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Delete a regular user account (only if they have no booking history)
+export const deleteRegularUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const user = await User.findById(userId).select('name role');
+        if (!user || user.role !== 'user') {
+            return res.status(404).json({ message: 'Regular user not found.' });
+        }
+
+        const bookingCount = await Booking.countDocuments({ user: userId });
+        if (bookingCount > 0) {
+            return res.status(409).json({
+                message: 'Cannot delete user with booking history. Please cancel or archive related records first.'
+            });
+        }
+
+        await Promise.all([
+            Favorite.deleteMany({ user: userId }),
+            LoyaltyTransaction.deleteMany({ user: userId }),
+            Message.deleteMany({ $or: [{ sender: userId }, { receiver: userId }] }),
+            Notification.deleteMany({ user: userId }),
+            Review.deleteMany({ user: userId }),
+            SupportTicket.deleteMany({ user: userId }),
+            SupportTicket.updateMany(
+                { 'messages.sender': userId },
+                { $pull: { messages: { sender: userId } } }
+            ),
+            SupportTicket.updateMany(
+                { assignedTo: userId },
+                { $unset: { assignedTo: 1, assignedAt: 1 } }
+            ),
+            SupportTicket.updateMany(
+                { 'escalation.escalatedTo': userId },
+                { $unset: { 'escalation.escalatedTo': 1 } }
+            ),
+            User.updateMany({ referredBy: userId }, { $unset: { referredBy: 1 } })
+        ]);
+
+        await User.findByIdAndDelete(userId);
+
+        res.json({ message: `${user.name} deleted successfully.` });
+    } catch (error) {
+        console.error('Error in deleteRegularUser:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
 };
 

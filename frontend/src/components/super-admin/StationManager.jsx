@@ -6,6 +6,8 @@ import StationModal from "./StationModal";
 const StationManager = () => {
     const [stations, setStations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [initialLoadDone, setInitialLoadDone] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStation, setSelectedStation] = useState(null);
@@ -15,32 +17,41 @@ const StationManager = () => {
     const [vehicleCountFilter, setVehicleCountFilter] = useState('');
     const [revenueRange, setRevenueRange] = useState({ min: '', max: '' });
 
-    const fetchStationsOverview = async () => {
-        const timer = setTimeout(async () => {
+    const fetchStationsOverview = async (showPageLoader = false) => {
+        if (showPageLoader) {
             setLoading(true);
-            try {
-                const params = {
-                    sortBy: sortConfig.key,
-                    sortOrder: sortConfig.direction,
-                    status: statusFilter,
-                    vehicleCount: vehicleCountFilter,
-                    minRevenue: revenueRange.min,
-                    maxRevenue: revenueRange.max
-                };
-                
-                const { data } = await api.get('/super-admin/stations/overview', { params });
-                setStations(data);
-            } catch(error) {
-                console.error("Failed to fetch stations overview", error);
-            } finally { 
-                setLoading(false); 
-            }
-        }, 300);
-        
-        return () => clearTimeout(timer);
+        } else {
+            setRefreshing(true);
+        }
+
+        try {
+            const params = {
+                sortBy: sortConfig.key,
+                sortOrder: sortConfig.direction,
+                status: statusFilter,
+                vehicleCount: vehicleCountFilter,
+                minRevenue: revenueRange.min,
+                maxRevenue: revenueRange.max
+            };
+            
+            const { data } = await api.get('/super-admin/stations/overview', { params });
+            setStations(data);
+        } catch(error) {
+            console.error("Failed to fetch stations overview", error);
+        } finally { 
+            setLoading(false);
+            setRefreshing(false);
+            setInitialLoadDone(true);
+        }
     };
 
-    useEffect(() => { fetchStationsOverview(); }, [sortConfig, statusFilter, vehicleCountFilter, revenueRange]);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchStationsOverview(!initialLoadDone);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [sortConfig, statusFilter, vehicleCountFilter, revenueRange]);
 
     const handleSort = (key) => {
         setSortConfig(prev => ({
@@ -94,6 +105,9 @@ const StationManager = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Manage and monitor all charging stations across the network
                     </p>
+                    {refreshing && (
+                        <p className="text-xs text-primary-600 dark:text-primary-400 mt-2">Updating results...</p>
+                    )}
                 </div>
                 <div className="flex items-center gap-3">
                     {hasActiveFilters && (

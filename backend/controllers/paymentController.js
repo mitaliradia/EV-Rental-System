@@ -5,6 +5,82 @@ import Vehicle from '../models/Vehicle.js';
 import User from '../models/User.js';
 import LoyaltyTransaction from '../models/LoyaltyTransaction.js';
 
+async function finalizeSuccessfulPayment(booking, paymentId, source = 'verify') {
+    if (!booking) return;
+
+    const wasAlreadyCompleted = booking.paymentStatus === 'completed';
+
+    if (!wasAlreadyCompleted) {
+        booking.paymentStatus = 'completed';
+        booking.paymentId = paymentId;
+
+        // Keep active rides active (extension payments), otherwise mark booking confirmed.
+        if (booking.status !== 'active') {
+            booking.status = 'confirmed';
+        }
+
+        if (booking.securityDeposit?.amount > 0) {
+            booking.securityDeposit.status = 'held';
+            booking.securityDeposit.heldAt = new Date();
+            booking.securityDeposit.transactionId = paymentId;
+        }
+
+        await booking.save();
+    }
+
+    const user = await User.findById(booking.user);
+    if (user) {
+        const pointsEarned = Math.floor(booking.totalCost / 100);
+        const existingTxn = await LoyaltyTransaction.findOne({
+            user: user._id,
+            booking: booking._id,
+            type: 'earned'
+        });
+
+        if (!existingTxn) {
+            user.loyaltyPoints += pointsEarned;
+            user.totalSpent += booking.totalCost;
+
+            if (user.totalSpent >= 50000) user.loyaltyTier = 'platinum';
+            else if (user.totalSpent >= 25000) user.loyaltyTier = 'gold';
+            else if (user.totalSpent >= 10000) user.loyaltyTier = 'silver';
+
+            await user.save();
+            await LoyaltyTransaction.create({
+                user: user._id,
+                type: 'earned',
+                points: pointsEarned,
+                booking: booking._id,
+                description: `Earned ${pointsEarned} points for booking`
+            });
+        }
+    }
+
+    if (global.io) {
+        const userId = booking.user?.toString();
+        const stationId = booking.station?.toString();
+
+        if (userId) {
+            global.io.to(userId).emit('booking_confirmed', {
+                bookingId: booking._id,
+                message: 'Your payment is confirmed and booking is ready.'
+            });
+        }
+
+        if (stationId) {
+            global.io.to(`station_${stationId}`).emit('dashboard_refresh', {
+                message: `Payment updated for booking ${booking._id}`,
+                source
+            });
+        }
+
+        global.io.to('super_admin_room').emit('dashboard_refresh', {
+            message: `Payment updated for booking ${booking._id}`,
+            source
+        });
+    }
+}
+
 export const createPaymentOrder = async (req, res) => {
     try {
         const razorpay = new Razorpay({
@@ -68,7 +144,7 @@ export const verifyPayment = async (req, res) => {
                 }
 
                 // Idempotency check: reject duplicate verify requests for the same payment
-                if (booking.paymentId === razorpay_payment_id) {
+                if (booking.paymentId === razorpay_payment_id && booking.paymentStatus === 'completed') {
                     console.log(`Idempotent verify request for booking ${bookingId} with payment ${razorpay_payment_id}`);
                     return res.json({ 
                         message: 'Payment already verified for this booking.', 
@@ -77,16 +153,13 @@ export const verifyPayment = async (req, res) => {
                     });
                 }
 
-                // Mark as processing - webhook will confirm
-                booking.paymentStatus = 'processing';
-                booking.paymentId = razorpay_payment_id;
-                await booking.save();
+                // Finalize immediately after signature verification so station dashboard updates instantly.
+                await finalizeSuccessfulPayment(booking, razorpay_payment_id, 'verify');
                 
-                // Return success immediately - webhook will complete the flow
                 res.json({ 
-                    message: 'Payment verification in progress. Your booking will be confirmed shortly.', 
+                    message: 'Payment verified successfully. Booking is confirmed.', 
                     success: true,
-                    status: 'processing'
+                    status: 'completed'
                 });
             } catch (bookingError) {
                 console.error('Booking update failed after payment:', bookingError);
@@ -170,60 +243,8 @@ async function handlePaymentCaptured(payment) {
             return;
         }
         
-        // Only update if not already completed (idempotency)
-        if (booking.paymentStatus !== 'completed') {
-            booking.paymentStatus = 'completed';
-            booking.paymentId = payment.id;
-            booking.status = 'confirmed';
-            
-            if (booking.securityDeposit?.amount > 0) {
-                booking.securityDeposit.status = 'held';
-                booking.securityDeposit.heldAt = new Date();
-                booking.securityDeposit.transactionId = payment.id;
-            }
-            
-            await booking.save();
-
-            const user = await User.findById(booking.user);
-            if (user) {
-                const pointsEarned = Math.floor(booking.totalCost / 100);
-                const existingTxn = await LoyaltyTransaction.findOne({
-                    user: user._id,
-                    booking: booking._id,
-                    type: 'earned'
-                });
-
-                if (!existingTxn) {
-                    user.loyaltyPoints += pointsEarned;
-                    user.totalSpent += booking.totalCost;
-
-                    if (user.totalSpent >= 50000) user.loyaltyTier = 'platinum';
-                    else if (user.totalSpent >= 25000) user.loyaltyTier = 'gold';
-                    else if (user.totalSpent >= 10000) user.loyaltyTier = 'silver';
-
-                    await user.save();
-                    await LoyaltyTransaction.create({
-                        user: user._id,
-                        type: 'earned',
-                        points: pointsEarned,
-                        booking: booking._id,
-                        description: `Earned ${pointsEarned} points for booking`
-                    });
-                }
-            }
-            
-            // Notify user via socket
-            if (global.io) {
-                global.io.to(booking.user.toString()).emit('booking_confirmed', {
-                    bookingId: booking._id,
-                    message: 'Your booking has been confirmed via webhook!'
-                });
-            }
-            
-            console.log(`✅ Webhook: Payment captured for booking ${bookingId}`);
-        } else {
-            console.log(`ℹ️ Webhook: Booking ${bookingId} already completed (idempotent)`);
-        }
+        await finalizeSuccessfulPayment(booking, payment.id, 'webhook');
+        console.log(`✅ Webhook: Payment captured for booking ${bookingId}`);
     } catch (error) {
         console.error(`Failed to update booking ${bookingId} after payment capture:`, error);
         await handleUnlinkedPayment(payment.id, bookingId, error.message);

@@ -46,7 +46,6 @@ userSchema.index({ email: 1 });
 userSchema.index({ phone: 1 });
 userSchema.index({ role: 1, station: 1 });
 userSchema.index({ loyaltyTier: 1 });
-userSchema.index({ 'driverLicense.number': 1 });
 userSchema.index({ referralCode: 1 });
 
 userSchema.pre('save', async function (next) {

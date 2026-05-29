@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
 const Spinner = () => (
@@ -25,9 +25,11 @@ const StatusBadge = ({ status }) => {
 
 const UserDetailPage = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [deleting, setDeleting] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
     
     // Simplified filters
@@ -108,6 +110,21 @@ const UserDetailPage = () => {
         setCustomDateRange({ start: '', end: '' });
     };
 
+    const handleDeleteUser = async () => {
+        if (!userData?.user?._id) return;
+        if (!window.confirm(`Delete ${userData.user.name}'s account? This action cannot be undone.`)) return;
+
+        setDeleting(true);
+        try {
+            await api.delete(`/super-admin/users/regular/${userData.user._id}`);
+            navigate('/super-admin');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to delete user.');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     const hasActiveFilters = statusFilters.length > 0 || costRange.min || costRange.max || dateFilter;
 
     if (loading) return <Spinner />;
@@ -120,8 +137,19 @@ const UserDetailPage = () => {
         <div className="space-y-8">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <Link to="/super-admin" className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 mb-4 inline-block transition-colors">&larr; Back to Dashboard</Link>
-                <h1 className="text-4xl font-bold text-gray-800 dark:text-white">{user.name}</h1>
-                <p className="text-lg text-gray-500 dark:text-gray-400">{user.email}</p>
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div>
+                        <h1 className="text-4xl font-bold text-gray-800 dark:text-white">{user.name}</h1>
+                        <p className="text-lg text-gray-500 dark:text-gray-400">{user.email}</p>
+                    </div>
+                    <button
+                        onClick={handleDeleteUser}
+                        disabled={deleting}
+                        className="self-start px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-60"
+                    >
+                        {deleting ? 'Deleting...' : 'Delete User'}
+                    </button>
+                </div>
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                         <span className="font-medium text-gray-600 dark:text-gray-400">Member Since:</span>

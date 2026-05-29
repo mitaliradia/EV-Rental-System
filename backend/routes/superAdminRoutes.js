@@ -1,6 +1,6 @@
 import express from 'express';
 import { protectRoute, superAdmin } from '../middleware/protectRoute.js';
-import { createStation, removeStationMaster, getStationOverview, getStationDetails, updateStation, getAllRegularUsers, getAllStationMasters, createStationMaster, getAllStations, getAllVehicles, getUserDetails, updateStationMaster, updateVehicle, deleteVehicle, getAllActiveRides, cancelRide, getStaffManagementData, cleanupUnmanagedStations, addVehicle, upload } from '../controllers/superAdminController.js';
+import { createStation, removeStationMaster, getStationOverview, getStationDetails, updateStation, getAllRegularUsers, deleteRegularUser, getAllStationMasters, createStationMaster, getAllStations, getAllVehicles, getUserDetails, updateStationMaster, updateVehicle, deleteVehicle, getAllActiveRides, cancelRide, getStaffManagementData, cleanupUnmanagedStations, addVehicle, upload } from '../controllers/superAdminController.js';
 
 const router = express.Router();
 router.use(protectRoute, superAdmin);
@@ -14,6 +14,7 @@ router.get('/staff-data',getStaffManagementData);
 router.post('/cleanup-unmanaged', cleanupUnmanagedStations);
 
 router.get('/users/regular',getAllRegularUsers);
+router.delete('/users/regular/:userId', deleteRegularUser);
 router.get('/users/:id/details',getUserDetails);
 router.get('/users/masters',getAllStationMasters);
 router.post('/users/masters', createStationMaster);

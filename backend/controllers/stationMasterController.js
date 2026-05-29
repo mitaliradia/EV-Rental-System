@@ -104,7 +104,9 @@ export const updateBookingStatus = async (req, res) => {
     // Send single notification to user
     const getStatusMessage = (status, vehicleModel, paymentStatus, paymentDeadline) => {
         const now = new Date();
-        const timeLeft = paymentDeadline ? Math.round((paymentDeadline - now) / (1000 * 60)) : 0;
+        const timeLeft = paymentDeadline
+            ? Math.max(1, Math.ceil((new Date(paymentDeadline).getTime() - now.getTime()) / (1000 * 60)))
+            : 0;
         
         switch(status) {
             case 'confirmed': {
@@ -126,7 +128,12 @@ export const updateBookingStatus = async (req, res) => {
         title: newStatus === 'confirmed' ? 'Booking Confirmed - Payment Required' : 
                newStatus === 'active' ? 'Ride Started' :
                newStatus === 'completed' ? 'Ride Completed' : 'Booking Cancelled',
-        message: getStatusMessage(newStatus, booking.vehicle?.modelName || 'vehicle', booking.paymentStatus),
+        message: getStatusMessage(
+            newStatus,
+            booking.vehicle?.modelName || 'vehicle',
+            booking.paymentStatus,
+            booking.paymentDeadline
+        ),
         type: 'booking',
         priority: newStatus === 'confirmed' ? 'high' : 'medium'
     });

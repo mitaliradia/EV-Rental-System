@@ -29,8 +29,10 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                         
                         if (verifyResponse.data.status === 'processing') {
                             alert('Payment submitted successfully! Your booking will be confirmed shortly.');
-                        } else {
+                        } else if (verifyResponse.data.status === 'completed') {
                             alert('Payment successful! Booking confirmed.');
+                        } else {
+                            alert('Payment successful! Booking status updated.');
                         }
                         
                         onSuccess();

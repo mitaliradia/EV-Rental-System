@@ -35,7 +35,7 @@
 
 **Root Cause**: 
 - Origin mismatch between frontend URL and allowed origins
-- Missing or incorrect `CLIENT_URL` in environment variables
+- Missing or incorrect `FRONTEND_URL` in environment variables
 
 **Solutions Implemented**:
 1. **Enhanced Logging**: CORS errors now show which origin was blocked
@@ -45,7 +45,7 @@
 **To Debug CORS Issues**:
 1. Check your `.env` file in backend:
    ```env
-   CLIENT_URL=http://localhost:5173
+   FRONTEND_URL=http://localhost:5173
    NODE_ENV=development
    ```
 
@@ -56,12 +56,12 @@
    ```
 
 3. **In Development**: Server allows ports 5173, 5174, 5175
-4. **In Production**: Only the `CLIENT_URL` is allowed
+4. **In Production**: Only the `FRONTEND_URL` is allowed unless `ALLOW_LOCALHOST_IN_PROD=true`
 
 **Quick Fixes**:
 - Ensure your frontend is running on port 5173, 5174, or 5175
 - OR add your port to `allowedOrigins` array in `server.js`
-- For production, set `CLIENT_URL` environment variable
+- For production, set `FRONTEND_URL` environment variable and redeploy
 
 ---
 
@@ -93,7 +93,7 @@
 1. **Development Setup**:
    ```bash
    # Backend .env
-   CLIENT_URL=http://localhost:5173
+   FRONTEND_URL=http://localhost:5173
    NODE_ENV=development
    
    # Frontend should run on
@@ -103,7 +103,7 @@
 2. **Production Setup**:
    ```bash
    # Backend .env
-   CLIENT_URL=https://yourdomain.com
+   FRONTEND_URL=https://yourdomain.com
    NODE_ENV=production
    ```
 
@@ -148,7 +148,8 @@ MONGO_URI=mongodb+srv://...
 # Server
 PORT=5000
 NODE_ENV=development  # or 'production'
-CLIENT_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:5173
+ALLOW_LOCALHOST_IN_PROD=true
 
 # JWT
 JWT_SECRET=your_secret_here

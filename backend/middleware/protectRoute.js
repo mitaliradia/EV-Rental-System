@@ -3,10 +3,13 @@ import User from '../models/User.js';
 
 // Checks if a user is logged in via cookie
 export const protectRoute = async (req, res, next) => {
-    let token = req.cookies.jwt;
+    // Prefer Authorization header for SPA calls; fall back to cookie for browser-session auth.
+    let token;
 
-    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+    if (req.headers.authorization?.startsWith('Bearer ')) {
         token = req.headers.authorization.split(' ')[1];
+    } else {
+        token = req.cookies.jwt;
     }
 
     if (token) {
