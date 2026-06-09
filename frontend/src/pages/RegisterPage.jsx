@@ -49,79 +49,77 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 space-y-8">
-                <div>
-                    <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white">Create Your Account</h2>
-                    <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                        And start your electric journey with us!
-                    </p>
-                </div>
-                
+        <div className="mx-auto max-w-md mt-16 animate-fade-in">
+            <div className="text-center space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Create Your Account</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Join EV-Go and begin your electric vehicle journey.
+                </p>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5 card p-8 shadow-sm bg-white dark:bg-gray-900 rounded-3xl">
                 {error && (
-                    <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded-md" role="alert">
-                        <span className="block sm:inline">{error}</span>
+                    <div className="p-4 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 rounded-2xl text-xs font-semibold" role="alert">
+                        <span>{error}</span>
                     </div>
                 )}
                 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
-                        <input 
-                            id="name" 
-                            name="name" 
-                            type="text" 
-                            autoComplete="name"
-                            value={formData.name}
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
-                        <input 
-                            id="email" 
-                            name="email" 
-                            type="email" 
-                            autoComplete="email"
-                            value={formData.email}
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                        <input 
-                            id="password" 
-                            name="password" 
-                            type="password" 
-                            autoComplete="new-password"
-                            minLength="6"
-                            value={formData.password}
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-                        />
-                    </div>
-                    
-                    <button 
-                        type="submit" 
-                        disabled={loading} 
-                        className="w-full py-2 px-4 bg-indigo-600 dark:bg-indigo-500 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:bg-indigo-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-                    >
-                        {loading ? 'Creating account...' : 'Create Account'}
-                    </button>
-                </form>
+                <div>
+                    <label htmlFor="name" className="label">Full Name</label>
+                    <input 
+                        id="name" 
+                        name="name" 
+                        type="text" 
+                        autoComplete="name"
+                        value={formData.name}
+                        onChange={handleChange} 
+                        required 
+                        className="input" 
+                    />
+                </div>
+                <div>
+                    <label htmlFor="email" className="label">Email address</label>
+                    <input 
+                        id="email" 
+                        name="email" 
+                        type="email" 
+                        autoComplete="email"
+                        value={formData.email}
+                        onChange={handleChange} 
+                        required 
+                        className="input" 
+                    />
+                </div>
+                <div>
+                    <label htmlFor="password" className="label">Password</label>
+                    <input 
+                        id="password" 
+                        name="password" 
+                        type="password" 
+                        autoComplete="new-password"
+                        minLength="6"
+                        value={formData.password}
+                        onChange={handleChange} 
+                        required 
+                        className="input" 
+                    />
+                </div>
                 
-                <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+                <button 
+                    type="submit" 
+                    disabled={loading} 
+                    className="w-full btn btn-primary mt-2 py-3"
+                >
+                    {loading ? 'Creating account...' : 'Create Account'}
+                </button>
+
+                <p className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 pt-2">
                     Already have an account?{' '}
-                    <Link to="/login" className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-200">
+                    <Link to="/login" className="text-primary-600 dark:text-primary-400 font-bold hover:underline transition-all">
                         Login here
                     </Link>
                 </p>
-            </div>
+            </form>
         </div>
     );
 };

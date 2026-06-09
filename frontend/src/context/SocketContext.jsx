@@ -20,7 +20,10 @@ export const SocketProvider = ({ children }) => {
             console.log('Connecting to socket for user:', authUser._id);
             const newSocket = io(socketBaseUrl, {
                 withCredentials: true,
-                transports: ['websocket', 'polling']
+                transports: ['websocket', 'polling'],
+                auth: {
+                    token: localStorage.getItem('token')
+                }
             });
             
             newSocket.on('connect', () => {

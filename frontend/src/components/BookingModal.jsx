@@ -8,6 +8,8 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [duration, setDuration] = useState(1)
   const [bookedSlots, setBookedSlots] = useState([])
+  const [stations, setStations] = useState([])
+  const [returnStationId, setReturnStationId] = useState(vehicle.station)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
@@ -19,7 +21,17 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
 
   useEffect(() => {
     fetchBookedSlots()
+    fetchStations()
   }, [])
+
+  const fetchStations = async () => {
+    try {
+      const { data } = await api.get('/public/stations')
+      setStations(data)
+    } catch (err) {
+      console.error('Failed to load stations', err)
+    }
+  }
 
   const fetchBookedSlots = async () => {
     try {
@@ -79,7 +91,8 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
   }
 
   const timeSlots = generateTimeSlots()
-  const totalCost = selectedSlot ? duration * vehicle.pricePerHour : 0
+  const oneWayFee = returnStationId && returnStationId !== vehicle.station ? (vehicle.oneWayDropOffFee || 500) : 0
+  const totalCost = selectedSlot ? (duration * vehicle.pricePerHour) + oneWayFee : 0
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -93,16 +106,17 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
       const endTime = new Date(selectedSlot.time)
       endTime.setHours(endTime.getHours() + duration)
       
-      await api.post("/bookings", {
+      const { data } = await api.post("/bookings", {
         vehicleId: vehicle._id,
         stationId: vehicle.station,
+        returnStationId: returnStationId,
         startTime: selectedSlot.time,
         endTime: endTime,
-        totalCost: totalCost,
         emergencyContacts: emergencyContact.name ? [emergencyContact] : []
       })
       
-      onBookingSuccess()
+      setCreatedBooking({ ...data, vehicle })
+      setShowPayment(true)
     } catch (err) { 
       setError(err.response?.data?.message || "Booking failed.") 
     } finally { 
@@ -174,6 +188,23 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
               )}
             </div>
 
+            {/* Return Station Selection (One-Way Trips) */}
+            {vehicle.allowOneWayTrip && (
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Return Station (One-Way Trip)</label>
+                <select
+                  value={returnStationId}
+                  onChange={(e) => setReturnStationId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value={vehicle.station}>Same as pickup ({stations.find(s => s._id === vehicle.station)?.name || 'Return to pickup'})</option>
+                  {stations.filter(s => s._id !== vehicle.station).map(s => (
+                    <option key={s._id} value={s._id}>{s.name} (One-way fee: +₹{vehicle.oneWayDropOffFee || 500})</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Emergency Contact */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Emergency Contact (Optional)</label>
@@ -214,6 +245,12 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
                     <span className="text-gray-600 dark:text-gray-400">Duration:</span>
                     <span className="text-gray-900 dark:text-white">{duration} {duration === 1 ? 'hour' : 'hours'}</span>
                   </div>
+                  {oneWayFee > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">One-way Trip Fee:</span>
+                      <span className="text-gray-900 dark:text-white">₹{oneWayFee.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-semibold text-lg border-t border-gray-200 dark:border-gray-600 pt-2">
                     <span className="text-gray-900 dark:text-white">Total:</span>
                     <span className="text-green-600 dark:text-green-400">₹{totalCost.toLocaleString('en-IN')}</span>
@@ -238,6 +275,19 @@ export default function BookingModal({ vehicle, onClose, onBookingSuccess }) {
             </div>
           </form>
         </div>
+      {showPayment && createdBooking && (
+        <PaymentModal
+          booking={createdBooking}
+          onClose={() => {
+            setShowPayment(false)
+            onClose()
+          }}
+          onSuccess={() => {
+            onBookingSuccess()
+            onClose()
+          }}
+        />
+      )}
     </div>
   )
 }

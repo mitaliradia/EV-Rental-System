@@ -15,6 +15,9 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard.jsx';
 import StationDetailPage from './pages/StationDetailPage.jsx';
 import StationMasterRoute from './components/StationMasterRoute.jsx';
 import UserDetailPage from './components/super-admin/UserDetailPage.jsx';
+import LoyaltyPage from './pages/LoyaltyPage.jsx';
+import SupportPage from './pages/SupportPage.jsx';
+import RefundPage from './pages/RefundPage.jsx';
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/loyalty" element={<LoyaltyPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/refunds" element={<RefundPage />} />
           </Route>
           <Route element={<StationMasterRoute />}>
             <Route path="/dashboard" element={<StationMasterDashboard />} />

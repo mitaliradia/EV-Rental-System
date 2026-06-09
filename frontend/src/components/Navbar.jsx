@@ -22,18 +22,18 @@ const Navbar = () => {
     const isActive = (path) => location.pathname === path;
 
     return (
-        <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
+        <nav className="glass sticky top-4 z-50 my-4 mx-auto max-w-6xl rounded-full border border-gray-200/80 dark:border-gray-800/80 shadow-sm transition-all duration-300">
+            <div className="px-6">
+                <div className="flex justify-between items-center h-14">
                     
                     {/* Logo */}
                     <Link to="/" className="flex items-center space-x-2 group">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-700 transition-colors">
-                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center group-hover:bg-primary-700 transition-colors shadow-sm">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                             </svg>
                         </div>
-                        <span className="text-xl font-bold text-gray-900 dark:text-white">EV-Go</span>
+                        <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">EV-Go</span>
                     </Link>
 
                     {/* Main Navigation */}
@@ -42,9 +42,9 @@ const Navbar = () => {
                         {(!authUser || authUser.role === 'user') && (
                             <Link 
                                 to="/vehicles" 
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                className={`px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide transition-all duration-200 ${
                                     isActive('/vehicles') 
-                                        ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' 
+                                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
                                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
                             >
@@ -56,9 +56,9 @@ const Navbar = () => {
                             <>
                                 <Link 
                                     to="/favorites" 
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    className={`px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide transition-all duration-200 ${
                                         isActive('/favorites') 
-                                            ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' 
+                                            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
                                             : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                                     }`}
                                 >
@@ -66,9 +66,9 @@ const Navbar = () => {
                                 </Link>
                                 <Link 
                                     to="/profile" 
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    className={`px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide transition-all duration-200 ${
                                         isActive('/profile') 
-                                            ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' 
+                                            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
                                             : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                                     }`}
                                 >
@@ -80,9 +80,9 @@ const Navbar = () => {
                         {authUser?.role === 'station-master' && (
                             <Link 
                                 to="/dashboard" 
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                className={`px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide transition-all duration-200 ${
                                     isActive('/dashboard') 
-                                        ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' 
+                                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
                                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
                             >
@@ -93,30 +93,29 @@ const Navbar = () => {
                         {authUser?.role === 'super-admin' && (
                             <Link 
                                 to="/super-admin" 
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                className={`px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide transition-all duration-200 ${
                                     isActive('/super-admin') 
-                                        ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300' 
-                                        : 'text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900'
+                                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
+                                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
                             >
-                                Admin Panel
+                                Super Admin Dashboard
                             </Link>
                         )}
                     </div>
 
-                    {/* Right Side */}
+                    {/* User Actions */}
                     <div className="flex items-center space-x-3">
-                        {/* Theme Toggle */}
                         <button 
                             onClick={toggleTheme}
-                            className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         >
                             {isDark ? (
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
                                 </svg>
                             ) : (
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                                 </svg>
                             )}
@@ -130,38 +129,47 @@ const Navbar = () => {
                                 <div className="relative">
                                     <button 
                                         onClick={() => setShowUserMenu(!showUserMenu)}
-                                        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                        className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                                     >
-                                        <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
-                                            <span className="text-white text-sm font-medium">
+                                        <div className="w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center shadow-sm">
+                                            <span className="text-white text-xs font-semibold">
                                                 {authUser.name.charAt(0).toUpperCase()}
                                             </span>
                                         </div>
-                                        <div className="hidden sm:block text-left">
-                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{authUser.name}</div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">{authUser.role.replace('-', ' ')}</div>
+                                        <div className="hidden sm:block text-left pr-1">
+                                            <div className="text-sm font-semibold text-gray-900 dark:text-white leading-none">{authUser.name}</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 capitalize leading-none mt-1">{authUser.role.replace('-', ' ')}</div>
                                         </div>
-                                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg className="w-3.5 h-3.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                         </svg>
                                     </button>
                                     
                                     {showUserMenu && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 py-1.5 animate-slide-up z-50">
                                             {authUser.role === 'user' && (
                                                 <>
-                                                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => setShowUserMenu(false)}>
+                                                    <Link to="/profile" className="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => setShowUserMenu(false)}>
                                                         My Profile
                                                     </Link>
-                                                    <Link to="/analytics" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => setShowUserMenu(false)}>
+                                                    <Link to="/loyalty" className="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => setShowUserMenu(false)}>
+                                                        Loyalty Program
+                                                    </Link>
+                                                    <Link to="/support" className="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => setShowUserMenu(false)}>
+                                                        Support & Tickets
+                                                    </Link>
+                                                    <Link to="/refunds" className="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => setShowUserMenu(false)}>
+                                                        Refund Tracking
+                                                    </Link>
+                                                    <Link to="/analytics" className="block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => setShowUserMenu(false)}>
                                                         Analytics
                                                     </Link>
                                                 </>
                                             )}
-                                            <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                                            <hr className="my-1.5 border-gray-100 dark:border-gray-800" />
                                             <button 
                                                 onClick={handleLogout}
-                                                className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                className="block w-full text-left px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
                                             >
                                                 Sign Out
                                             </button>
@@ -170,16 +178,16 @@ const Navbar = () => {
                                 </div>
                             </>
                         ) : (
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
                                 <Link 
                                     to="/login" 
-                                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium"
+                                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold text-sm px-3 py-1.5 rounded-full transition-colors"
                                 >
                                     Sign In
                                 </Link>
                                 <Link 
                                     to="/register" 
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-full font-bold text-sm shadow-premium hover:shadow-glow transition-all"
                                 >
                                     Get Started
                                 </Link>

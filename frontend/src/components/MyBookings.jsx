@@ -68,31 +68,31 @@ export default function MyBookings() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'confirmed': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
-      case 'active': return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800'
-      case 'completed': return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-600'
-      case 'cancelled': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-800'
-      case 'pending-confirmation': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'
-      default: return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-600'
+      case 'confirmed': return 'bg-sky-100 dark:bg-sky-950/45 text-sky-800 dark:text-sky-300'
+      case 'active': return 'bg-accent-100 dark:bg-accent-900/40 text-accent-800 dark:text-accent-300 font-bold'
+      case 'completed': return 'bg-gray-200 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300'
+      case 'cancelled': return 'bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400'
+      case 'pending-confirmation': return 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+      default: return 'bg-gray-200 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300'
     }
   }
 
   const getPaymentStatusBadge = (paymentStatus) => {
     switch (paymentStatus) {
-      case 'pending': return { text: 'Payment Pending', color: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400' }
-      case 'processing': return { text: 'Payment Processing', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 animate-pulse' }
-      case 'completed': return { text: 'Paid', color: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' }
-      case 'failed': return { text: 'Payment Failed', color: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400' }
+      case 'pending': return { text: 'Payment Pending', color: 'bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-bold' }
+      case 'processing': return { text: 'Payment Processing', color: 'bg-sky-100 dark:bg-sky-950/30 text-sky-700 dark:text-sky-400 animate-pulse' }
+      case 'completed': return { text: 'Paid', color: 'bg-accent-600 text-white font-bold' }
+      case 'failed': return { text: 'Payment Failed', color: 'bg-rose-50 dark:bg-rose-950/25 text-rose-700' }
       default: return null
     }
   }
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm">
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
-          <span>Loading bookings...</span>
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
+          <span className="text-sm font-semibold">Loading bookings...</span>
         </div>
       </div>
     )
@@ -100,57 +100,65 @@ export default function MyBookings() {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
-        <div className="text-red-600">{error}</div>
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm">
+        <div className="text-red-600 text-sm font-semibold">{error}</div>
       </div>
     )
   }
 
   if (!items.length) {
-    return <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-gray-600 dark:text-gray-400">No bookings yet.</div>
+    return <div className="bg-transparent text-center py-10 text-gray-500 dark:text-gray-400 text-sm font-medium">No bookings yet. Start your journey by exploring the fleet!</div>
   }
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-6">
         {items.map((booking) => (
-          <div key={booking._id} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+          <div key={booking._id} className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-gray-200 dark:border-gray-800 hover:-translate-y-0.5 transition-all duration-300">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{booking.vehicle?.modelName || "Vehicle"}</h3>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">{booking.vehicle?.modelName || "Vehicle"}</h3>
+                  <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${getStatusColor(booking.status)}`}>
                     {booking.status.replace('-', ' ').toUpperCase()}
                   </span>
                   {getPaymentStatusBadge(booking.paymentStatus) && (
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusBadge(booking.paymentStatus).color}`}>
+                    <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${getPaymentStatusBadge(booking.paymentStatus).color}`}>
                       {getPaymentStatusBadge(booking.paymentStatus).text}
                     </span>
                   )}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                <div className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
                   <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span>{new Date(booking.startTime).toLocaleString()} — {new Date(booking.endTime).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>₹{booking.totalCost?.toLocaleString('en-IN')}</span>
+                    <span className="font-bold text-gray-800 dark:text-gray-200">₹{booking.totalCost?.toLocaleString('en-IN')}</span>
                   </div>
                   {booking.paymentStatus === 'pending' && booking.paymentDeadline && (
-                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-medium">
+                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Payment due: <CountdownTimer expiryTimestamp={booking.paymentDeadline} onExpire={() => fetchBookings()} /></span>
                     </div>
                   )}
+                  {booking.securityDeposit?.amount > 0 && (
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      <span>Security Deposit: ₹{booking.securityDeposit.amount} ({booking.securityDeposit.status.toUpperCase()})</span>
+                    </div>
+                  )}
                   {booking.modifications?.length > 0 && (
-                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                    <div className="flex items-center gap-2 text-primary-700 dark:text-primary-300 font-semibold">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
@@ -169,7 +177,7 @@ export default function MyBookings() {
                   {needsPayment(booking) && (
                     <button
                       onClick={() => setPaymentModal(booking)}
-                      className="flex-1 px-3 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                      className="flex-1 btn btn-primary py-2 text-xs font-bold"
                     >
                       Pay Now
                     </button>
@@ -178,16 +186,25 @@ export default function MyBookings() {
                   {canModify(booking) && (
                     <button
                       onClick={() => setModifyModal(booking)}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                      className="flex-1 btn btn-secondary py-2 text-xs font-bold"
                     >
                       Modify
+                    </button>
+                  )}
+
+                  {isActive(booking) && booking.paymentStatus === 'completed' && (
+                    <button
+                      onClick={() => setModifyModal(booking)}
+                      className="flex-1 btn btn-primary py-2 text-xs font-bold"
+                    >
+                      Extend Ride
                     </button>
                   )}
                   
                   {booking.status === 'completed' && (
                     <button
                       onClick={() => setReviewModal(booking)}
-                      className="flex-1 px-3 py-2 bg-yellow-600 text-white text-sm rounded-lg hover:bg-yellow-700"
+                      className="flex-1 btn btn-secondary py-2 text-xs font-bold"
                     >
                       Review
                     </button>
@@ -196,7 +213,7 @@ export default function MyBookings() {
                   {(isActive(booking) || canModify(booking) || needsPayment(booking)) && (
                     <button
                       onClick={() => setChatModal(booking)}
-                      className="flex-1 px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700"
+                      className="flex-1 btn btn-ghost py-2 text-xs font-bold"
                     >
                       Chat
                     </button>

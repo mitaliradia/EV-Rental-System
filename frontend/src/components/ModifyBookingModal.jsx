@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import api from '../services/api'
+import PaymentModal from './PaymentModal'
 
 const ModifyBookingModal = ({ booking, onClose, onSuccess }) => {
   const [newEndTime, setNewEndTime] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [showPayment, setShowPayment] = useState(false)
+  const [createdBooking, setCreatedBooking] = useState(null)
 
   const currentEnd = new Date(booking.endTime)
   const minTime = new Date(currentEnd.getTime() - 2 * 60 * 60 * 1000) // 2 hours before current end
@@ -27,11 +30,20 @@ const ModifyBookingModal = ({ booking, onClose, onSuccess }) => {
 
     setSubmitting(true)
     try {
-      await api.put(`/bookings/${booking._id}/modify`, {
+      const { data } = await api.put(`/bookings/${booking._id}/modify`, {
         newEndTime,
         type
       })
-      onSuccess()
+      if (data.requiresPayment) {
+        setCreatedBooking({
+          ...booking,
+          endTime: newEnd,
+          totalCost: booking.totalCost + costDiff
+        })
+        setShowPayment(true)
+      } else {
+        onSuccess()
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to modify booking')
     } finally {
@@ -109,6 +121,19 @@ const ModifyBookingModal = ({ booking, onClose, onSuccess }) => {
           </div>
         </form>
       </div>
+      {showPayment && createdBooking && (
+        <PaymentModal
+          booking={createdBooking}
+          onClose={() => {
+            setShowPayment(false)
+            onClose()
+          }}
+          onSuccess={() => {
+            onSuccess()
+            onClose()
+          }}
+        />
+      )}
     </div>
   )
 }
