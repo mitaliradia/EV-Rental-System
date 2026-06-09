@@ -1,6 +1,7 @@
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import nodemailer from 'nodemailer';
+import { generateInvoicePDF } from '../services/invoiceService.js';
 
 // Email transporter setup
 const transporter = nodemailer.createTransport({
@@ -123,6 +124,18 @@ export const markAsRead = async (req, res) => {
 
 export const sendBookingConfirmationEmail = async (booking, user) => {
     try {
+        // Generate PDF Invoice
+        let attachments = [];
+        try {
+            const pdfPath = await generateInvoicePDF(booking, user);
+            attachments.push({
+                filename: `invoice_${booking._id}.pdf`,
+                path: pdfPath
+            });
+        } catch (pdfErr) {
+            console.error('⚠️ Failed to generate invoice PDF attachment, sending email without invoice:', pdfErr.message);
+        }
+
         const emailContent = `
             <h2>Booking Confirmation</h2>
             <p>Dear ${user.name},</p>
@@ -130,7 +143,7 @@ export const sendBookingConfirmationEmail = async (booking, user) => {
             
             <div style="background: #f5f5f5; padding: 15px; margin: 20px 0;">
                 <h3>Booking Details:</h3>
-                <p><strong>Vehicle:</strong> ${booking.vehicle.modelName}</p>
+                <p><strong>Vehicle:</strong> ${booking.vehicle?.modelName || 'EV Vehicle'}</p>
                 <p><strong>Start:</strong> ${new Date(booking.startTime).toLocaleString()}</p>
                 <p><strong>End:</strong> ${new Date(booking.endTime).toLocaleString()}</p>
                 <p><strong>Total Cost:</strong> ₹${booking.totalCost.toLocaleString('en-IN')}</p>
@@ -138,6 +151,7 @@ export const sendBookingConfirmationEmail = async (booking, user) => {
             </div>
             
             <p>Please arrive at the station 15 minutes before your booking time.</p>
+            <p>We have attached the booking tax invoice (PDF) to this email for your records.</p>
             <p>Thank you for choosing EV Rental System!</p>
         `;
         
@@ -145,7 +159,8 @@ export const sendBookingConfirmationEmail = async (booking, user) => {
             from: process.env.EMAIL_USER,
             to: user.email,
             subject: 'Booking Confirmation - EV Rental System',
-            html: emailContent
+            html: emailContent,
+            attachments
         });
     } catch (error) {
         console.error('Email sending failed:', error);
