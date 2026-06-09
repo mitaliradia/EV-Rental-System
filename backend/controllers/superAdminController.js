@@ -9,6 +9,7 @@ import SupportTicket from "../models/SupportTicket.js";
 import User from "../models/User.js";
 import Vehicle from "../models/Vehicle.js";
 import { createNotificationUtil } from './notificationController.js';
+import { cacheService } from '../services/cacheService.js';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -49,6 +50,10 @@ export const createStation = async (req,res) => {
             return res.status(400).json({message: 'A station with this name already exists.'})
         }
         const station = await Station.create({name,location});
+        
+        // Invalidate stations list cache
+        await cacheService.del('public:stations');
+        console.log('🧹 Cache Evicted: stations list cache cleared (create)');
         
         // Notify all super admins about new station
         const superAdmins = await User.find({ role: 'super-admin' });
@@ -96,6 +101,10 @@ export const updateStation = async(req,res) => {
         station.name=name || station.name;
         station.location=location || station.location;
         await station.save();
+
+        // Invalidate stations list cache
+        await cacheService.del('public:stations');
+        console.log('🧹 Cache Evicted: stations list cache cleared (update)');
 
         res.json(station);
     } catch(error){
@@ -897,6 +906,161 @@ export const cleanupUnmanagedStations = async (req, res) => {
         res.status(500).json({ message: 'Server Error during cleanup' }); 
     }
 };
+
+/**
+ * Calculates system-wide metrics and caches them in Redis
+ * @returns {Promise<object>} The calculated analytics object
+ */
+export const calculateAndCacheSystemAnalytics = async () => {
+    const cacheKey = 'super_admin_analytics';
+    
+    const [
+        revenueStats,
+        totalVehicles,
+        activeRentals,
+        loyaltyDistribution,
+        topStations,
+        monthlyRevenue,
+        ticketStats
+    ] = await Promise.all([
+        // Financials (completed bookings)
+        Booking.aggregate([
+            { $match: { paymentStatus: 'completed' } },
+            { $group: {
+                _id: null,
+                totalRevenue: { $sum: '$totalCost' },
+                averageCost: { $avg: '$totalCost' },
+                totalBookings: { $sum: 1 }
+            }}
+        ]),
+        // Total Vehicles
+        Vehicle.countDocuments({}),
+        // Active Rentals
+        Booking.countDocuments({ status: 'active' }),
+        // Loyalty Tier distribution
+        User.aggregate([
+            { $group: {
+                _id: '$loyaltyTier',
+                count: { $sum: 1 }
+            }}
+        ]),
+        // Top Stations by Revenue
+        Booking.aggregate([
+            { $match: { paymentStatus: 'completed' } },
+            { $group: {
+                _id: '$station',
+                revenue: { $sum: '$totalCost' },
+                bookingsCount: { $sum: 1 }
+            }},
+            { $sort: { revenue: -1 } },
+            { $limit: 5 }
+        ]),
+        // Monthly Revenue
+        Booking.aggregate([
+            { $match: { paymentStatus: 'completed' } },
+            { $group: {
+                _id: {
+                    year: { $year: '$createdAt' },
+                    month: { $month: '$createdAt' }
+                },
+                revenue: { $sum: '$totalCost' },
+                count: { $sum: 1 }
+            }},
+            { $sort: { '_id.year': 1, '_id.month': 1 } },
+            { $limit: 12 }
+        ]),
+        // Ticket Stats
+        Promise.all([
+            SupportTicket.countDocuments({}),
+            SupportTicket.countDocuments({ status: { $in: ['resolved', 'closed'] } })
+        ])
+    ]);
+
+    // Post-process Top Stations to include station names
+    const populatedTopStations = await Station.populate(topStations, {
+        path: '_id',
+        select: 'name address'
+    });
+
+    const formattedTopStations = populatedTopStations.map(item => ({
+        stationId: item._id?._id || null,
+        name: item._id?.name || 'Unknown Station',
+        revenue: item.revenue || 0,
+        bookingsCount: item.bookingsCount || 0
+    }));
+
+    // Format Monthly Revenue for charting
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const formattedMonthlyRevenue = monthlyRevenue.map(item => ({
+        label: `${monthNames[item._id.month - 1]} ${item._id.year}`,
+        revenue: item.revenue || 0,
+        bookingsCount: item.count || 0
+    }));
+
+    const revData = revenueStats[0] || { totalRevenue: 0, averageCost: 0, totalBookings: 0 };
+    const utilizationRate = totalVehicles > 0 ? ((activeRentals / totalVehicles) * 100) : 0;
+    
+    const totalTickets = ticketStats[0];
+    const resolvedTickets = ticketStats[1];
+    const ticketResolutionRate = totalTickets > 0 ? ((resolvedTickets / totalTickets) * 100) : 100;
+
+    // Loyalty Tier counts
+    const loyaltyMap = { platinum: 0, gold: 0, silver: 0, regular: 0, bronze: 0 };
+    loyaltyDistribution.forEach(tier => {
+        if (tier._id) {
+            loyaltyMap[tier._id] = tier.count;
+        }
+    });
+
+    const analytics = {
+        financials: {
+            totalRevenue: revData.totalRevenue || 0,
+            averageRevenuePerBooking: Math.round((revData.averageCost || 0) * 100) / 100,
+            totalBookings: revData.totalBookings || 0
+        },
+        fleet: {
+            totalVehicles,
+            activeRentals,
+            utilizationRate: Math.round(utilizationRate * 10) / 10
+        },
+        loyaltyTiers: loyaltyMap,
+        topStations: formattedTopStations,
+        monthlyRevenue: formattedMonthlyRevenue,
+        support: {
+            totalTickets,
+            resolvedTickets,
+            resolutionRate: Math.round(ticketResolutionRate * 10) / 10
+        },
+        calculatedAt: new Date()
+    };
+
+    // Save to Redis Cache (expires in 12 hours)
+    await cacheService.set(cacheKey, analytics, 43200);
+    return analytics;
+};
+
+/**
+ * Controller endpoint for returning system-wide admin analytics
+ */
+export const getSystemAnalytics = async (req, res) => {
+    try {
+        const cacheKey = 'super_admin_analytics';
+        const cachedAnalytics = await cacheService.get(cacheKey);
+        
+        if (cachedAnalytics) {
+            console.log('⚡ Cache Hit: Serving super-admin analytics from Redis cache.');
+            return res.json(cachedAnalytics);
+        }
+        
+        console.log('🔄 Cache Miss: Computing super-admin analytics...');
+        const analytics = await calculateAndCacheSystemAnalytics();
+        return res.json(analytics);
+    } catch (error) {
+        console.error('Error fetching system analytics:', error);
+        return res.status(500).json({ message: 'Server Error loading analytics' });
+    }
+};
+
 
 
 

@@ -1,10 +1,11 @@
 import express from 'express';
 import { protectRoute, superAdmin } from '../middleware/protectRoute.js';
-import { createStation, removeStationMaster, getStationOverview, getStationDetails, updateStation, getAllRegularUsers, deleteRegularUser, getAllStationMasters, createStationMaster, getAllStations, getAllVehicles, getUserDetails, updateStationMaster, updateVehicle, deleteVehicle, getAllActiveRides, cancelRide, getStaffManagementData, cleanupUnmanagedStations, addVehicle, upload } from '../controllers/superAdminController.js';
+import { createStation, removeStationMaster, getStationOverview, getStationDetails, updateStation, getAllRegularUsers, deleteRegularUser, getAllStationMasters, createStationMaster, getAllStations, getAllVehicles, getUserDetails, updateStationMaster, updateVehicle, deleteVehicle, getAllActiveRides, cancelRide, getStaffManagementData, cleanupUnmanagedStations, addVehicle, upload, getSystemAnalytics } from '../controllers/superAdminController.js';
 
 const router = express.Router();
 router.use(protectRoute, superAdmin);
 
+router.get('/analytics', getSystemAnalytics);
 router.post('/stations', createStation);
 router.get('/stations',getAllStations);
 router.get('/stations/overview', getStationOverview); 

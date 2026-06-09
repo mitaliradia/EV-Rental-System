@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import Vehicle from '../models/Vehicle.js';
 import mongoose from 'mongoose';
 import { createNotificationUtil } from '../controllers/notificationController.js';
+import { calculateAndCacheSystemAnalytics } from '../controllers/superAdminController.js';
 
 export const startCronJobs = () => {
     // Check for stuck processing payments every 5 minutes
@@ -67,166 +68,34 @@ export const startCronJobs = () => {
         }
     });
 
-    // Check for unconfirmed bookings every 5 minutes
-    cron.schedule('*/5 * * * *', async () => {
-        // Skip if MongoDB is not connected
+    // Cache warming for Super Admin Analytics - runs every 3 hours
+    cron.schedule('0 */3 * * *', async () => {
         if (mongoose.connection.readyState !== 1) {
-            console.log('Skipping confirmation timeout job - MongoDB not connected');
+            console.log('Skipping analytics cache warming - MongoDB not connected');
             return;
         }
-        
+
         try {
-            const now = new Date();
-            
-            // Find bookings that passed confirmation deadline
-            const unconfirmedBookings = await Booking.find({
-                status: 'pending-confirmation',
-                confirmationDeadline: { $lt: now }
-            }).populate('user vehicle station');
-            
-            for (const booking of unconfirmedBookings) {
-                // Cancel the booking
-                booking.status = 'cancelled';
-                await booking.save();
-                
-                // Free up the vehicle
-                await Vehicle.findByIdAndUpdate(booking.vehicle._id, {
-                    status: 'available',
-                    availableAfter: null
-                });
-                
-                // Notify user
-                await createNotificationUtil(
-                    booking.user._id,
-                    'Booking Cancelled',
-                    `Your booking was cancelled as it was not confirmed by the station within the time limit.`,
-                    'booking',
-                    'high',
-                    {},
-                    global.io
-                );
-                
-                console.log(`Auto-cancelled unconfirmed booking ${booking._id}`);
-            }
-            
-            console.log(`Processed ${unconfirmedBookings.length} unconfirmed bookings`);
+            console.log('🔄 Cron: Recalculating and warming Super Admin Analytics cache...');
+            await calculateAndCacheSystemAnalytics();
+            console.log('✅ Cron: Super Admin Analytics cache warmed successfully.');
         } catch (error) {
-            if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
-                console.error('MongoDB connection issue in confirmation timeout job - will retry next cycle');
-            } else {
-                console.error('Error in confirmation timeout job:', error.message);
-            }
+            console.error('Error warming analytics cache:', error.message);
         }
     });
 
-    // Issue #6: Overtime billing - Check every 5 minutes for overdue rides
-    cron.schedule('*/5 * * * *', async () => {
-        // Skip if MongoDB is not connected
-        if (mongoose.connection.readyState !== 1) {
-            console.log('Skipping overtime billing job - MongoDB not connected');
-            return;
-        }
-        
-        try {
-            const now = new Date();
-            
-            // Find overdue active rides
-            const overdueRides = await Booking.find({
-                status: 'active',
-                endTime: { $lt: now }
-            }).populate('user vehicle station');
-            
-            for (const ride of overdueRides) {
-                // Calculate overtime with grace period
-                const gracePeriodMs = (ride.overtimeCharges?.gracePeriodMinutes || 15) * 60 * 1000;
-                const endTimeWithGrace = new Date(ride.endTime.getTime() + gracePeriodMs);
-                
-                if (now > endTimeWithGrace) {
-                    // Calculate overtime hours
-                    const overtimeMs = now.getTime() - endTimeWithGrace.getTime();
-                    const overtimeHours = Math.ceil(overtimeMs / (1000 * 60 * 60)); // Round up to nearest hour
-                    
-                    const overtimeRate = ride.overtimeCharges?.overtimeRate || ride.vehicle.pricePerHour * 1.5;
-                    const overtimeCost = overtimeHours * overtimeRate;
-                    const previousOvertimeHours = ride.overtimeCharges?.overtimeHours || 0;
-                    const previousOvertimeCost = ride.overtimeCharges?.overtimeCost || 0;
-
-                    // Recompute planned base cost each run so cron is idempotent after crashes/retries.
-                    const plannedDurationHours = Math.max(
-                        0,
-                        (new Date(ride.endTime).getTime() - new Date(ride.startTime).getTime()) / (1000 * 60 * 60)
-                    );
-                    const oneWayFee = ride.oneWayFee || 0;
-                    const plannedBaseCost = (plannedDurationHours * ride.vehicle.pricePerHour) + oneWayFee;
-                    
-                    // Update booking with overtime charges
-                    ride.overtimeCharges.isOvertime = true;
-                    ride.overtimeCharges.overtimeHours = overtimeHours;
-                    ride.overtimeCharges.overtimeCost = overtimeCost;
-                    ride.overtimeCharges.lastCalculatedAt = now;
-                    ride.totalCost = plannedBaseCost + overtimeCost;
-                    
-                    await ride.save();
-
-                    const overtimeChanged = previousOvertimeHours !== overtimeHours || previousOvertimeCost !== overtimeCost;
-                    
-                    // Notify station master
-                    const stationMaster = await User.findOne({
-                        station: ride.station._id,
-                        role: 'station-master'
-                    });
-                    
-                    if (stationMaster && overtimeChanged) {
-                        await createNotificationUtil(
-                            stationMaster._id,
-                            'Overdue Ride - Overtime Charges Applied',
-                            `${ride.user.name}'s ride with ${ride.vehicle.modelName} is ${overtimeHours}h overdue. ₹${overtimeCost} overtime charges applied. Please contact customer.`,
-                            'reminder',
-                            'high',
-                            {},
-                            global.io
-                        );
-                    }
-                    
-                    // Notify user about overtime charges
-                    if (overtimeChanged) {
-                        await createNotificationUtil(
-                            ride.user._id,
-                            'Overtime Charges Applied',
-                            `Your ride is ${overtimeHours} hour(s) overdue. ₹${overtimeCost} overtime charges have been added. Please return the vehicle immediately to avoid further charges.`,
-                            'reminder',
-                            'urgent',
-                            {},
-                            global.io
-                        );
-                    }
-                    
-                    console.log(`Applied overtime charge of ₹${overtimeCost} to booking ${ride._id}`);
-                } else {
-                    // Still in grace period, just notify
-                    const minutesLeft = Math.ceil((endTimeWithGrace.getTime() - now.getTime()) / (1000 * 60));
-                    
-                    await createNotificationUtil(
-                        ride.user._id,
-                        'Grace Period Warning',
-                        `Your ride time has expired. You have ${minutesLeft} minutes grace period remaining. Please return the vehicle to avoid overtime charges.`,
-                        'reminder',
-                        'high',
-                        {},
-                        global.io
-                    );
-                }
-            }
-            
-            console.log(`Processed ${overdueRides.length} overdue rides for overtime billing`);
-        } catch (error) {
-            if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
-                console.error('⚠️ MongoDB connection issue in overtime billing job - will retry next cycle');
-            } else {
-                console.error('Error in overdue rides cron job:', error.message);
+    // Warm the analytics cache immediately on startup asynchronously
+    setTimeout(async () => {
+        if (mongoose.connection.readyState === 1) {
+            try {
+                console.log('🔄 Startup: Warming Super Admin Analytics cache...');
+                await calculateAndCacheSystemAnalytics();
+                console.log('✅ Startup: Super Admin Analytics cache warmed successfully.');
+            } catch (error) {
+                console.warn('⚠️ Startup: Failed to warm analytics cache.', error.message);
             }
         }
-    });
+    }, 5000); // Wait 5 seconds to let connections stabilize
     
     console.log('Cron jobs started');
 };
