@@ -3,6 +3,7 @@ import Vehicle from '../models/Vehicle.js';
 import Station from '../models/Station.js';
 import User from '../models/User.js';
 import { sendBookingConfirmationEmail } from './notificationController.js';
+import { queueService } from '../services/queueService.js';
 
 const getStationFilter = (user) => {
     return user.role === 'super-admin' ? {} : { station: user.station };
@@ -54,6 +55,9 @@ export const updateBookingStatus = async (req, res) => {
         booking.status='cancelled';
         //Free up the vehicle
         await Vehicle.findByIdAndUpdate(booking.vehicle,{status:'available',availableAfter: null});
+        // Cancel any pending payment timeout or overtime BullMQ jobs
+        await queueService.cancelPaymentTimeoutJob(booking._id.toString());
+        await queueService.cancelOvertimeJob(booking._id.toString());
     }
     // Only a 'confirmed' booking with completed payment can become 'active'
     else if(newStatus==='active' && booking.status==='confirmed'){
@@ -64,6 +68,9 @@ export const updateBookingStatus = async (req, res) => {
         booking.status='active';
         // Set vehicle status to 'in-use' when ride becomes active
         await Vehicle.findByIdAndUpdate(booking.vehicle, {status: 'in-use'});
+        // Schedule precise BullMQ overtime job to fire at endTime + gracePeriod
+        const gracePeriod = booking.overtimeCharges?.gracePeriodMinutes || 15;
+        await queueService.scheduleOvertimeJob(booking._id.toString(), booking.endTime, gracePeriod);
     }
     // Only an 'active' booking can become 'completed'
     else if(newStatus==='completed' && booking.status==='active'){
@@ -71,6 +78,8 @@ export const updateBookingStatus = async (req, res) => {
 
         // Free up the vehicle
         await Vehicle.findByIdAndUpdate(booking.vehicle,{status: 'available',availableAfter:null});
+        // Cancel overtime BullMQ job since ride is now done
+        await queueService.cancelOvertimeJob(booking._id.toString());
     }
     else{
         return res.status(400).json({message:`Invalid status transition from ${booking.status} to ${newStatus}`});

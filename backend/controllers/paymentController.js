@@ -27,6 +27,9 @@ async function finalizeSuccessfulPayment(booking, paymentId, source = 'verify') 
         }
 
         await booking.save();
+
+        // Payment succeeded → cancel the BullMQ payment timeout job immediately
+        await queueService.cancelPaymentTimeoutJob(booking._id.toString());
     }
 
     const user = await User.findById(booking.user);

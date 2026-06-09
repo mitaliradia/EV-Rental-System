@@ -11,6 +11,8 @@ import {Server} from 'socket.io';
 import Redis from 'ioredis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { startEmailWorker } from './jobs/emailWorker.js';
+import { startPaymentTimeoutWorker } from './jobs/paymentTimeoutWorker.js';
+import { startOvertimeWorker } from './jobs/overtimeWorker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -259,8 +261,10 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 
-    // Start background email worker
+    // Start background workers
     startEmailWorker();
+    startPaymentTimeoutWorker();
+    startOvertimeWorker();
 
     //2. Start the scheduled jobs after the server is successfully running
     startCronJobs();

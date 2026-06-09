@@ -2,6 +2,7 @@ import Booking from '../models/Booking.js';
 import Vehicle from '../models/Vehicle.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
+import { queueService } from '../services/queueService.js';
 
 export const createBooking = async (req, res) => {
     // Issue #3: Use database transaction for concurrent booking protection (Issue #16)
@@ -150,6 +151,9 @@ export const createBooking = async (req, res) => {
         // Commit transaction
         await session.commitTransaction();
         session.endSession();
+        
+        // Schedule exact payment timeout job via BullMQ (fires at precise paymentDeadline)
+        await queueService.schedulePaymentTimeoutJob(booking[0]._id, paymentDeadline);
         
         // Notify station master dashboard to refresh
         const io = req.io;
