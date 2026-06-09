@@ -21,44 +21,44 @@ const MasterEditModal = ({ master, onClose, onSuccess }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4" onClick={onClose}>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
-                <div className="p-4 border-b border-gray-200 dark:border-gray-600">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Edit Master: {master.name}</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-65 flex justify-center items-center z-50 p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-gray-800 animate-fadeIn" onClick={e => e.stopPropagation()}>
+                <div className="p-5 border-b border-gray-200 dark:border-gray-800">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Edit Master: {master.name}</h3>
                 </div>
-                <form onSubmit={handleSubmit} className="p-4 space-y-4">
+                <form onSubmit={handleSubmit} className="p-5 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                         <input 
                             value={form.name} 
                             onChange={e => setForm({ ...form, name: e.target.value })} 
                             required 
-                            className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                            className="input" 
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Email</label>
                         <input 
                             type="email" 
                             value={form.email} 
                             onChange={e => setForm({ ...form, email: e.target.value })} 
                             required 
-                            className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                            className="input" 
                         />
                     </div>
-                    {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-                    <div className="pt-2 flex justify-end space-x-2">
+                    {error && <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>}
+                    <div className="pt-2 flex justify-end space-x-3">
                         <button 
                             type="button" 
                             onClick={onClose} 
-                            className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500"
+                            className="btn btn-ghost px-4 py-2 text-sm"
                         >
                             Cancel
                         </button>
                         <button 
                             type="submit" 
                             disabled={loading} 
-                            className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                            className="btn btn-primary px-5 py-2 text-sm"
                         >
                             {loading ? 'Updating...' : 'Update'}
                         </button>
@@ -98,45 +98,45 @@ const CreateMasterForm = ({ stations, onSuccess }) => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg h-full border border-gray-100 dark:border-gray-700">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Create New Station Master</h3>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800">
+            <h3 className="text-xl font-bold mb-5 text-gray-800 dark:text-white">Create New Station Master</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                     <input 
                         value={form.name} 
                         onChange={e => setForm({ ...form, name: e.target.value })} 
                         required 
-                        className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                        className="input" 
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Email</label>
                     <input 
                         type="email" 
                         value={form.email} 
                         onChange={e => setForm({ ...form, email: e.target.value })} 
                         required 
-                        className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                        className="input" 
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Set Initial Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Set Initial Password</label>
                     <input 
                         type="password" 
                         value={form.password} 
                         onChange={e => setForm({ ...form, password: e.target.value })} 
                         required 
-                        className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                        className="input" 
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Assign to Station</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Assign to Station</label>
                     <select 
                         value={form.stationId} 
                         onChange={e => setForm({ ...form, stationId: e.target.value })} 
                         required 
-                        className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-600" 
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 text-sm focus:ring-2 focus:ring-primary-500" 
                         disabled={availableStations.length === 0}
                     >
                         {availableStations.length > 0 ? (
@@ -151,11 +151,11 @@ const CreateMasterForm = ({ stations, onSuccess }) => {
                 <button 
                     type="submit" 
                     disabled={loading || availableStations.length === 0} 
-                    className="w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="w-full btn btn-primary py-3"
                 >
                     Create Master Account
                 </button>
-                {message.text && <p className={`mt-2 text-sm ${message.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{message.text}</p>}
+                {message.text && <p className={`mt-2 text-sm font-medium ${message.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{message.text}</p>}
             </form>
         </div>
     );
@@ -163,37 +163,39 @@ const CreateMasterForm = ({ stations, onSuccess }) => {
 
 // --- Sub-component: Table to MANAGE existing Station Masters ---
 const MastersList = ({ masters, onDemote, onEdit }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-        <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Current Station Masters</h3>
+    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800">
+        <h3 className="text-xl font-bold mb-5 text-gray-800 dark:text-white">Current Station Masters</h3>
         <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
                 <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-600">
-                        <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Master Name</th>
-                        <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Assigned Station</th>
-                        <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Actions</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Master Name</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Station</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {masters.length > 0 ? masters.map((master, index) => (
                         <tr key={master._id} className={`${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
-                            <td className="px-3 py-3 text-gray-900 dark:text-white">
-                                {master.name} <span className="text-gray-500 dark:text-gray-400">({master.email})</span>
+                            <td className="px-4 py-3 text-gray-900 dark:text-white">
+                                <span className="font-semibold">{master.name}</span> <span className="text-gray-500 dark:text-gray-400 text-xs">({master.email})</span>
                             </td>
-                            <td className="px-3 py-3 font-medium text-gray-900 dark:text-white">{master.station?.name || 'Unassigned'}</td>
-                            <td className="px-3 py-3 space-x-4">
-                                <button 
-                                    onClick={() => onEdit(master)} 
-                                    className="text-xs text-indigo-600 dark:text-indigo-400 font-medium hover:underline"
-                                >
-                                    Edit
-                                </button>
-                                <button 
-                                    onClick={() => onDemote(master._id)} 
-                                    className="text-xs text-red-500 dark:text-red-400 font-medium hover:underline"
-                                >
-                                    Delete
-                                </button>
+                            <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white">{master.station?.name || 'Unassigned'}</td>
+                            <td className="px-4 py-3">
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => onEdit(master)} 
+                                        className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all duration-200"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button 
+                                        onClick={() => onDemote(master._id)} 
+                                        className="text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-800 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     )) : (
@@ -230,31 +232,31 @@ const AllUsersList = () => {
     }, []);
 
     if (loading) return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
             <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer List</h3>
             <p className="text-gray-600 dark:text-gray-400">Loading customers...</p>
         </div>
     );
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Customer Directory</h3>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800">
+            <h3 className="text-xl font-bold mb-5 text-gray-800 dark:text-white">Customer Directory</h3>
             <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-600">
-                            <th className="p-3 text-left font-medium text-gray-700 dark:text-gray-300">Name</th>
-                            <th className="p-3 text-left font-medium text-gray-700 dark:text-gray-300">Email</th>
-                            <th className="p-3 text-left font-medium text-gray-700 dark:text-gray-300">Joined On</th>
+                            <th className="p-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                            <th className="p-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                            <th className="p-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Joined On</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.users?.length > 0 ? (
                             data.users.map((user, index) => (
                                 <tr key={user._id} className={`${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
-                                    <td className="p-3 text-gray-900 dark:text-white">{user.name}</td>
-                                    <td className="p-3 text-gray-900 dark:text-white">{user.email}</td>
-                                    <td className="p-3 text-gray-500 dark:text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</td>
+                                    <td className="p-4 font-semibold text-gray-900 dark:text-white">{user.name}</td>
+                                    <td className="p-4 text-gray-900 dark:text-white">{user.email}</td>
+                                    <td className="p-4 text-gray-500 dark:text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</td>
                                 </tr>
                             ))
                         ) : (
@@ -267,7 +269,6 @@ const AllUsersList = () => {
                     </tbody>
                 </table>
             </div>
-            {/* Pagination controls would be added here */}
         </div>
     );
 };

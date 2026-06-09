@@ -30,38 +30,38 @@ const MasterEditModal = ({ master, onClose, onSuccess }) => {
                 </div>
                 <form onSubmit={handleSubmit} className="p-4 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                         <input 
                             value={form.name} 
                             onChange={e => setForm({ ...form, name: e.target.value })} 
                             required 
-                            className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500" 
+                            className="input" 
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Email</label>
                         <input 
                             type="email" 
                             value={form.email} 
                             onChange={e => setForm({ ...form, email: e.target.value })} 
                             required 
-                            className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500" 
+                            className="input" 
                         />
                     </div>
                     {/* Note: Password change would typically be a separate, more secure flow */}
-                    {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-                    <div className="pt-2 flex justify-end space-x-2">
+                    {error && <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>}
+                    <div className="pt-2 flex justify-end space-x-3">
                         <button 
                             type="button" 
                             onClick={onClose}
-                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                            className="btn btn-ghost px-4 py-2 text-sm"
                         >
                             Cancel
                         </button>
                         <button 
                             type="submit" 
                             disabled={loading}
-                            className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed transition-colors"
+                            className="btn btn-primary px-5 py-2 text-sm"
                         >
                             {loading ? 'Updating...' : 'Update Master'}
                         </button>

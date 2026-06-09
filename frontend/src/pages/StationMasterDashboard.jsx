@@ -5,19 +5,19 @@ import ChatModal from '../components/ChatModal';
 
 // Enhanced Stat Card with modern styling
 const StatCard = ({ title, value, color }) => (
-    <div className={`bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700 group`}>
+    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 hover:border-primary-500 dark:hover:border-primary-500 transition-all duration-300 transform hover:-translate-y-0.5 group">
         <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{title}</div>
+            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{title}</div>
         </div>
-        <p className={`text-3xl font-bold ${color} group-hover:scale-105 transition-transform duration-300`}>{value}</p>
-        <div className="mt-2 h-1 bg-gradient-to-r from-primary-400 to-accent-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <p className={`text-3xl font-bold ${color} transition-transform duration-300`}>{value}</p>
+        <div className="mt-2 h-1 bg-primary-500 dark:bg-primary-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </div>
 );
 
 // Enhanced Table Section with modern styling
 const TableSection = ({ title, children }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <div className="bg-gray-50 dark:bg-gray-900/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center space-x-3">
                 <h3 className="text-xl font-bold text-gray-800 dark:text-white">{title}</h3>
             </div>
@@ -31,10 +31,10 @@ const TableSection = ({ title, children }) => (
 );
 
 const Spinner = () => (
-    <div className="flex justify-center items-center py-10">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-primary-600"></div>
     </div>
-)
+);
 
 
 const StationMasterDashboard = () => {
@@ -108,28 +108,45 @@ const StationMasterDashboard = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            {/* Modern Hero Header */}
-            <div className="bg-gradient-to-br from-primary-600 via-primary-500 to-accent-600 px-6 py-12">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center space-y-4">
-                        <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
+        <div className="min-h-screen bg-transparent space-y-8 animate-fade-in">
+            {/* Sleek Hero Header Section */}
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 relative overflow-hidden shadow-sm border border-gray-200 dark:border-gray-800">
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-primary-200/25 dark:bg-primary-900/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-48 h-48 bg-accent-300/20 dark:bg-accent-900/10 rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+                    <div>
+                        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                             Station Dashboard
                         </h1>
-                        <div className="inline-flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3">
-                            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                            <p className="text-xl font-semibold text-white">{stationName}</p>
-                        </div>
-                        <p className="text-primary-100 max-w-2xl mx-auto">
-                            Real-time monitoring and management of your station operations
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-2xl">
+                            Real-time monitoring and management of your station operations, vehicles availability, and active bookings.
                         </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                        <div className="inline-flex items-center space-x-3 bg-accent-50 dark:bg-accent-950/20 px-5 py-2.5 rounded-2xl border border-accent-200 dark:border-accent-800 font-semibold text-sm text-accent-700 dark:text-accent-400 shadow-sm">
+                            <div className="w-2.5 h-2.5 bg-accent-500 rounded-full animate-pulse"></div>
+                            <span>{stationName}</span>
+                        </div>
+                        <div className="flex items-center space-x-3 bg-gray-50 dark:bg-gray-900/60 px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-gray-800 font-semibold text-xs text-gray-600 dark:text-gray-300 shadow-sm">
+                            <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>
+                                {new Date().toLocaleDateString('en-US', { 
+                                    weekday: 'short', 
+                                    year: 'numeric', 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                })}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-                {/* Enhanced Stats Overview */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            
+            {/* Enhanced Stats Overview */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                     <StatCard 
                         title="Total Vehicles" 
                         value={stats.totalVehicles} 
@@ -167,10 +184,10 @@ const StationMasterDashboard = () => {
                     <table className="min-w-full text-sm">
                         <thead>
                             <tr className="border-b border-gray-200 dark:border-gray-600">
-                                <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Customer</th>
-                                <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Vehicle</th>
-                                <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Duration</th>
-                                <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Duration</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -178,7 +195,7 @@ const StationMasterDashboard = () => {
                                 <tr key={booking._id} className={`${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-accent-400 rounded-full flex items-center justify-center text-white font-semibold">
+                                            <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-full flex items-center justify-center font-semibold border border-primary-200/50 dark:border-primary-800/30">
                                                 {booking.user.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div>
@@ -198,13 +215,13 @@ const StationMasterDashboard = () => {
                                         <div className="flex space-x-2">
                                             <button 
                                                 onClick={() => handleUpdateBooking(booking._id, 'confirmed')}
-                                                className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-md"
+                                                className="px-3.5 py-1.5 bg-accent-600 hover:bg-accent-700 text-white rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm"
                                             >
                                                 Confirm
                                             </button>
                                             <button 
                                                 onClick={() => handleUpdateBooking(booking._id, 'cancelled')}
-                                                className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-200 shadow-md"
+                                                className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm"
                                             >
                                                 Cancel
                                             </button>
@@ -213,7 +230,7 @@ const StationMasterDashboard = () => {
                                                     console.log('Chat button clicked for booking:', booking._id);
                                                     setChatModal(booking);
                                                 }}
-                                                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md"
+                                                className="px-3.5 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm"
                                             >
                                                 Chat
                                             </button>
@@ -234,75 +251,75 @@ const StationMasterDashboard = () => {
                 <TableSection title="Confirmed & Upcoming Rides">
                     {confirmedBookings.length > 0 ? (
                         <table className="min-w-full text-sm">
-                            <thead>
-                                <tr className="border-b border-gray-200 dark:border-gray-600">
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Customer</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Vehicle</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Start Time</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Payment</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                        <thead>
+                            <tr className="border-b border-gray-200 dark:border-gray-600">
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Start Time</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Payment</th>
+                                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {confirmedBookings.map((booking, index) => (
+                                <tr key={booking._id} className={`${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center font-semibold border border-indigo-200/50 dark:border-indigo-800/30">
+                                                {booking.user.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="font-semibold text-gray-900 dark:text-white">{booking.user.name}</div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{booking.vehicle.modelName}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm">
+                                            <div className="font-medium text-gray-900 dark:text-white">{new Date(booking.startTime).toLocaleDateString()}</div>
+                                            <div className="text-gray-500 dark:text-gray-400">{new Date(booking.startTime).toLocaleTimeString()}</div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
+                                            booking.paymentStatus === 'completed' 
+                                                ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800' 
+                                                : 'bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-400 border border-orange-200 dark:border-orange-800'
+                                        }`}>
+                                            {booking.paymentStatus === 'completed' ? 'PAID' : 'PENDING'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex space-x-2">
+                                            <button 
+                                                onClick={() => handleUpdateBooking(booking._id, 'active')} 
+                                                disabled={booking.paymentStatus !== 'completed'}
+                                                className={`px-3.5 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
+                                                    booking.paymentStatus === 'completed'
+                                                        ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
+                                                        : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                                }`}
+                                                title={booking.paymentStatus !== 'completed' ? 'Payment required before starting ride' : ''}
+                                            >
+                                                Start Ride
+                                            </button>
+                                            <button 
+                                                onClick={() => handleUpdateBooking(booking._id, 'cancelled')} 
+                                                className="px-3 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    console.log('Chat button clicked for booking:', booking._id);
+                                                    setChatModal(booking);
+                                                }}
+                                                className="px-3.5 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-all duration-200"
+                                            >
+                                                Chat
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {confirmedBookings.map((booking, index) => (
-                                    <tr key={booking._id} className={`${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-3">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-semibold">
-                                                    {booking.user.name.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div className="font-semibold text-gray-900 dark:text-white">{booking.user.name}</div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{booking.vehicle.modelName}</td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm">
-                                                <div className="font-medium text-gray-900 dark:text-white">{new Date(booking.startTime).toLocaleDateString()}</div>
-                                                <div className="text-gray-500 dark:text-gray-400">{new Date(booking.startTime).toLocaleTimeString()}</div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
-                                                booking.paymentStatus === 'completed' 
-                                                    ? 'bg-green-100 text-green-800 border border-green-200' 
-                                                    : 'bg-orange-100 text-orange-800 border border-orange-200'
-                                            }`}>
-                                                {booking.paymentStatus === 'completed' ? 'PAID' : 'PENDING'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex space-x-2">
-                                                <button 
-                                                    onClick={() => handleUpdateBooking(booking._id, 'active')} 
-                                                    disabled={booking.paymentStatus !== 'completed'}
-                                                    className={`px-4 py-2 rounded-xl font-semibold transition-all duration-200 ${
-                                                        booking.paymentStatus === 'completed'
-                                                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 shadow-md'
-                                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                    }`}
-                                                    title={booking.paymentStatus !== 'completed' ? 'Payment required before starting ride' : ''}
-                                                >
-                                                    Start Ride
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleUpdateBooking(booking._id, 'cancelled')} 
-                                                    className="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors duration-200"
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button 
-                                                    onClick={() => {
-                                                        console.log('Chat button clicked for booking:', booking._id);
-                                                        setChatModal(booking);
-                                                    }}
-                                                    className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold hover:from-gray-600 hover:to-gray-700 transform hover:scale-105 transition-all duration-200 shadow-md"
-                                                >
-                                                    Chat
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                            ))}
                             </tbody>
                         </table>
                     ) : (
@@ -319,18 +336,18 @@ const StationMasterDashboard = () => {
                         <table className="min-w-full text-sm">
                             <thead>
                                 <tr className="border-b border-gray-200 dark:border-gray-600">
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Vehicle Model</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Status</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Pricing</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle Model</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pricing</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {vehicles.map((v, index) => {
                                     const statusConfig = {
-                                        available: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
-                                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200' },
-                                        booked: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
-                                        maintenance: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' }
+                                        available: { bg: 'bg-green-100 dark:bg-green-950/30', text: 'text-green-800 dark:text-green-400', border: 'border-green-200 dark:border-green-800' },
+                                        pending: { bg: 'bg-orange-100 dark:bg-orange-950/30', text: 'text-orange-800 dark:text-orange-400', border: 'border-orange-200 dark:border-orange-800' },
+                                        booked: { bg: 'bg-blue-100 dark:bg-blue-950/30', text: 'text-blue-800 dark:text-blue-400', border: 'border-blue-200 dark:border-blue-800' },
+                                        maintenance: { bg: 'bg-red-100 dark:bg-red-950/30', text: 'text-red-800 dark:text-red-400', border: 'border-red-200 dark:border-red-800' }
                                     };
                                     const config = statusConfig[v.status] || statusConfig.available;
                                     
@@ -372,7 +389,7 @@ const StationMasterDashboard = () => {
                                 placeholder="Search by customer or vehicle..."
                                 value={activeRideSearch}
                                 onChange={e => setActiveRideSearch(e.target.value)}
-                                className="w-full pl-4 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="w-full pl-4 pr-4 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                             />
                         </div>
                     </div>
@@ -381,10 +398,10 @@ const StationMasterDashboard = () => {
                         <table className="min-w-full text-sm">
                             <thead>
                                 <tr className="border-b border-gray-200 dark:border-gray-600">
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Customer</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Vehicle</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Ends At</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ends At</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -392,15 +409,17 @@ const StationMasterDashboard = () => {
                                     <tr key={ride._id} className={`${ride.isOverdue ? 'bg-red-50 dark:bg-red-900/30' : index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700/30' : 'bg-white dark:bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors duration-200`}>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-3">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${
-                                                    ride.isOverdue ? 'bg-gradient-to-br from-red-500 to-red-600' : 'bg-gradient-to-br from-green-400 to-green-500'
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold border ${
+                                                    ride.isOverdue 
+                                                        ? 'bg-red-600 border-red-500' 
+                                                        : 'bg-green-600 border-green-500'
                                                 }`}>
                                                     {ride.user.name.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <div className="font-semibold text-gray-900 dark:text-white">{ride.user.name}</div>
                                                     {ride.isOverdue && (
-                                                        <span className="inline-flex items-center px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full border border-red-200">
+                                                        <span className="inline-flex items-center px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full border border-red-200">
                                                             OVERDUE
                                                         </span>
                                                     )}
@@ -422,13 +441,13 @@ const StationMasterDashboard = () => {
                                             <div className="flex space-x-2">
                                                 <button 
                                                     onClick={() => handleUpdateBooking(ride._id, 'completed')} 
-                                                    className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-md"
+                                                    className="px-3.5 py-1.5 bg-accent-600 hover:bg-accent-700 text-white rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm"
                                                 >
                                                     Complete
                                                 </button>
                                                 <button 
                                                     onClick={() => handleUpdateBooking(ride._id, 'cancelled')} 
-                                                    className="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors duration-200"
+                                                    className="px-3 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
                                                 >
                                                     Emergency Cancel
                                                 </button>
@@ -437,7 +456,7 @@ const StationMasterDashboard = () => {
                                                         console.log('Chat button clicked for ride:', ride._id);
                                                         setChatModal(ride);
                                                     }}
-                                                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md"
+                                                    className="px-3.5 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm"
                                                 >
                                                     Chat
                                                 </button>
@@ -468,7 +487,6 @@ const StationMasterDashboard = () => {
                         }}
                     />
                 )}
-            </div>
         </div>
     );
 };

@@ -26,7 +26,7 @@ const StationCard = ({ stationData, onEdit }) => {
         // 1. The entire card is a Link to the detail page
         <Link 
             to={`/super-admin/station/${station._id}`}
-            className="block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200"
+            className="block bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
         >
             <div className="flex justify-between items-start mb-4">
                 <div>

@@ -120,7 +120,7 @@ const StationManager = () => {
                     )}
                     <button 
                         onClick={handleAdd} 
-                        className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-bold rounded-xl hover:from-primary-600 hover:to-accent-600 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                        className="btn btn-primary transform hover:scale-105 transition-all duration-200 shadow-md"
                     >
                         <span className="flex items-center space-x-2">
                             <span>+</span>
@@ -144,7 +144,7 @@ const StationManager = () => {
                         <select 
                             value={statusFilter} 
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                         >
                             <option value="">All Stations</option>
                             <option value="managed">Managed</option>
@@ -157,7 +157,7 @@ const StationManager = () => {
                         <select 
                             value={vehicleCountFilter} 
                             onChange={(e) => setVehicleCountFilter(e.target.value)}
-                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                         >
                             <option value="">Any Count</option>
                             <option value="0">No Vehicles</option>
@@ -175,7 +175,7 @@ const StationManager = () => {
                                 placeholder="Min"
                                 value={revenueRange.min}
                                 onChange={(e) => setRevenueRange(prev => ({ ...prev, min: e.target.value }))}
-                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="w-full px-3 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                             />
                             <span className="text-gray-400 dark:text-gray-500">-</span>
                             <input
@@ -183,7 +183,7 @@ const StationManager = () => {
                                 placeholder="Max"
                                 value={revenueRange.max}
                                 onChange={(e) => setRevenueRange(prev => ({ ...prev, max: e.target.value }))}
-                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="w-full px-3 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                             />
                         </div>
                     </div>
@@ -194,7 +194,7 @@ const StationManager = () => {
                             <select 
                                 value={sortConfig.key} 
                                 onChange={(e) => setSortConfig(prev => ({ ...prev, key: e.target.value }))}
-                                className="flex-1 px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="flex-1 px-3 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                             >
                                 <option value="name">Name</option>
                                 <option value="totalVehicles">Vehicle Count</option>
@@ -203,7 +203,7 @@ const StationManager = () => {
                             </select>
                             <button
                                 onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
-                                className="px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
+                                className="px-3 py-3 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 bg-white dark:bg-gray-900 text-gray-950 dark:text-white text-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500"
                             >
                                 {sortConfig.direction === 'asc' ? 'ASC' : 'DESC'}
                             </button>

@@ -26,9 +26,15 @@ const ActiveRidesManager = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
             <div className="flex items-center space-x-3 mb-6">
-                <div className="text-2xl">🚗</div>
+                <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center text-primary-600 dark:text-primary-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM18 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9H6a4 4 0 00-4 4v3a1 1 0 001 1h1a3 3 0 016 0h4a3 3 0 016 0h1a1 1 0 001-1v-3a4 4 0 00-4-4z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 9V5a1 1 0 00-1-1H9a1 1 0 00-1 1v4" />
+                    </svg>
+                </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">All Active Rides (System-Wide)</h3>
             </div>
             <div className="overflow-x-auto">
@@ -71,7 +77,11 @@ const ActiveRidesManager = () => {
                                 <tr>
                                     <td colSpan="5" className="p-8 text-center text-gray-500 dark:text-gray-400">
                                         <div className="flex flex-col items-center space-y-2">
-                                            <div className="text-4xl text-gray-300 dark:text-gray-600">🚗</div>
+                                            <svg className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM18 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9H6a4 4 0 00-4 4v3a1 1 0 001 1h1a3 3 0 016 0h4a3 3 0 016 0h1a1 1 0 001-1v-3a4 4 0 00-4-4z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 9V5a1 1 0 00-1-1H9a1 1 0 00-1 1v4" />
+                                            </svg>
                                             <p className="font-medium">No rides are currently active.</p>
                                         </div>
                                     </td>

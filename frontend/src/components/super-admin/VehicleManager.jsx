@@ -128,7 +128,7 @@ const VehicleManager = () => {
                     <button 
                         onClick={handleAddVehicle} 
                         disabled={managedStations.length === 0} 
-                        className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-bold rounded-xl hover:from-primary-600 hover:to-accent-600 transform hover:scale-105 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                        className="btn btn-primary transform hover:scale-105 transition-all duration-200 shadow-md disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
                         title={managedStations.length === 0 ? "You must assign a master to a station before adding vehicles." : ""}
                     >
                         + Add Vehicle
@@ -148,7 +148,7 @@ const VehicleManager = () => {
                         <select 
                             value={statusFilter} 
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                         >
                             <option value="">All Status</option>
                             <option value="available">Available</option>
@@ -162,7 +162,7 @@ const VehicleManager = () => {
                         <select 
                             value={stationFilter} 
                             onChange={(e) => setStationFilter(e.target.value)}
-                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                         >
                             <option value="">All Stations</option>
                             {stations.map(station => (
@@ -179,7 +179,7 @@ const VehicleManager = () => {
                                 placeholder="Min"
                                 value={priceRange.min}
                                 onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
-                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="w-full px-3 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                             />
                             <span className="text-gray-400 dark:text-gray-500">-</span>
                             <input
@@ -187,7 +187,7 @@ const VehicleManager = () => {
                                 placeholder="Max"
                                 value={priceRange.max}
                                 onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
-                                className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="w-full px-3 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                             />
                         </div>
                     </div>
@@ -198,7 +198,7 @@ const VehicleManager = () => {
                             <select 
                                 value={sortConfig.key} 
                                 onChange={(e) => setSortConfig(prev => ({ ...prev, key: e.target.value }))}
-                                className="flex-1 px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                className="flex-1 px-3 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                             >
                                 <option value="modelName">Model Name</option>
                                 <option value="pricePerHour">Price</option>
@@ -206,7 +206,7 @@ const VehicleManager = () => {
                             </select>
                             <button
                                 onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
-                                className="px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-200"
+                                className="px-3 py-3 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 bg-white dark:bg-gray-900 text-gray-950 dark:text-white text-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500"
                             >
                                 {sortConfig.direction === 'asc' ? 'ASC' : 'DESC'}
                             </button>
@@ -216,8 +216,8 @@ const VehicleManager = () => {
             </div>
             
             {/* Enhanced Vehicle Table */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div className="bg-gray-50 dark:bg-gray-900/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
                     <div className="flex items-center space-x-3">
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white">Vehicle Fleet</h3>
                     </div>
@@ -236,11 +236,11 @@ const VehicleManager = () => {
                             <table className="min-w-full text-sm">
                                 <thead>
                                     <tr className="border-b border-gray-200 dark:border-gray-600">
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Model</th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Station</th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Price/Hour</th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Model</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Station</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price/Hour</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -262,13 +262,13 @@ const VehicleManager = () => {
                                                 <div className="flex gap-2">
                                                     <button 
                                                         onClick={() => handleEditVehicle(v)} 
-                                                        className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 border border-indigo-200 dark:border-indigo-600 px-3 py-1 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200"
+                                                        className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all duration-200"
                                                     >
                                                         Edit
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDeleteVehicle(v._id)} 
-                                                        className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-600 px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                                                        className="text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-200 dark:border-red-800 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
                                                     >
                                                         Delete
                                                     </button>

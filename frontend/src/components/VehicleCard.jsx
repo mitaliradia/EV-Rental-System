@@ -47,20 +47,20 @@ export default function VehicleCard({ vehicle, onBookNow }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden flex flex-col">
+    <div className="card-hover overflow-hidden flex flex-col group">
       {/* --- THIS IS THE CORRECTED PART --- */}
       {/* Make this div a relative container */}
-      <div className="aspect-video bg-gray-100 dark:bg-gray-700 relative">
+      <div className="aspect-video bg-gray-100 dark:bg-gray-800 relative overflow-hidden">
         <img
           src={vehicle.imageUrl?.startsWith('http') ? vehicle.imageUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${vehicle.imageUrl}`}
           alt={vehicle.modelName}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover transform group-hover:scale-105 transition-transform duration-500"
         />
         
         {authUser && (
           <button
             onClick={toggleFavorite}
-            className="absolute top-2 right-2 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="absolute top-3 right-3 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-full shadow-md hover:bg-white dark:hover:bg-gray-800 transition-colors"
           >
             <svg className={`w-5 h-5 ${isFavorite ? 'text-red-500 fill-current' : 'text-gray-400'}`} viewBox="0 0 20 20">
               <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
@@ -70,11 +70,11 @@ export default function VehicleCard({ vehicle, onBookNow }) {
         
         {/* The overlay for booked vehicles */}
         {!isAvailable && (
-            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center text-center">
-                <div>
-                    <p className="text-white font-bold text-lg capitalize">{vehicle.status}</p>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center text-center">
+                <div className="p-4">
+                    <p className="text-white font-extrabold text-lg uppercase tracking-wider">{vehicle.status}</p>
                     {vehicle.availableAfter && (
-                        <p className="text-gray-200 text-sm">
+                        <p className="text-gray-300 text-xs mt-1 font-medium">
                             Available after:<br/>
                             {new Date(vehicle.availableAfter).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
@@ -85,31 +85,29 @@ export default function VehicleCard({ vehicle, onBookNow }) {
       </div>
       {/* ---------------------------------- */}
 
-      <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{vehicle.modelName}</h3>
+      <div className="p-5 flex flex-col flex-grow">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{vehicle.modelName}</h3>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm text-gray-600 dark:text-gray-400">₹{vehicle.pricePerHour}/hr</p>
+          <p className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">₹{vehicle.pricePerHour}<span className="text-xs font-normal text-gray-500 dark:text-gray-400">/hr</span></p>
           <StarRating rating={rating.averageRating} readonly size="sm" />
         </div>
         {rating.totalReviews > 0 && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">({rating.totalReviews} reviews)</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">({rating.totalReviews} reviews)</p>
         )}
         <div className="mt-2 flex-1" />
         
         {canBook ? (
           <button
-            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full btn btn-primary py-2.5 text-xs text-center"
             onClick={() => onBookNow(vehicle)}
-            // Simplified the disabled logic
             disabled={!isAvailable}
           >
-            {/* Simplified the button text logic */}
             {isAvailable ? 'Book Now' : 'Currently Unavailable'}
           </button>
         ) : (
-            <Link to="/login" className="text-center w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700">
-                Login to Book
-            </Link>
+             <Link to="/login" className="w-full btn btn-ghost py-2.5 text-xs text-center border border-indigo-500/30 text-indigo-600 dark:text-indigo-400">
+                 Login to Book
+             </Link>
         )}
       </div>
     </div>

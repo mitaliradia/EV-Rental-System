@@ -72,9 +72,11 @@ export default {
         },
       },
       boxShadow: {
-        'glow': '0 0 20px rgba(14, 165, 233, 0.4)',
-        'glow-lg': '0 0 30px rgba(14, 165, 233, 0.6)',
-        'inner-glow': 'inset 0 0 20px rgba(14, 165, 233, 0.2)',
+        'glow': '0 0 20px rgba(14, 165, 233, 0.25)',
+        'glow-lg': '0 10px 30px rgba(14, 165, 233, 0.4)',
+        'inner-glow': 'inset 0 0 20px rgba(14, 165, 233, 0.15)',
+        'premium': '0 15px 40px -10px rgba(14, 165, 233, 0.12)',
+        'premium-lg': '0 25px 60px -15px rgba(14, 165, 233, 0.2)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
