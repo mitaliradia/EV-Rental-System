@@ -27,7 +27,7 @@ const vehicleSchema = new mongoose.Schema({
 // Indexes for performance 
 vehicleSchema.index({ station: 1, status: 1 });
 vehicleSchema.index({ status: 1 });
-vehicleSchema.index({ licensePlate: 1 });
+// Removed duplicate index for licensePlate (already defined as unique in schema)
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
 export default Vehicle;

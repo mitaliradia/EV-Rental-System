@@ -115,6 +115,10 @@ export const createBooking = async (req, res) => {
             });
         }
         
+        const isAdvanceBooking = requestedStartTime.getTime() > (now.getTime() + 12 * 60 * 60 * 1000); // 12+ hours ahead
+        const paymentWindow = isAdvanceBooking ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000; // 2 hours vs 30 minutes
+        const paymentDeadline = new Date(now.getTime() + paymentWindow);
+
         const booking = await Booking.create([{ 
             user: req.user._id, 
             vehicle: vehicleId,
@@ -125,7 +129,8 @@ export const createBooking = async (req, res) => {
             endTime: requestedEndTime,
             originalEndTime: requestedEndTime,
             totalCost: totalCost + oneWayFee,
-            status:'pending-confirmation',
+            status:'confirmed',
+            paymentDeadline: paymentDeadline,
             emergencyContacts: emergencyContacts || [],
             // Security deposit
             securityDeposit: {
@@ -138,14 +143,6 @@ export const createBooking = async (req, res) => {
                 gracePeriodMinutes: 15
             }
         }], { session });
-        
-        // Intelligent confirmation timeout based on booking timing
-        const isAdvanceBooking = requestedStartTime.getTime() > (now.getTime() + 12 * 60 * 60 * 1000); // 12+ hours ahead
-        const confirmationTimeout = isAdvanceBooking ? 4 * 60 * 60 * 1000 : 15 * 60 * 1000; // 4 hours vs 15 minutes
-        
-        // Set confirmation deadline
-        booking[0].confirmationDeadline = new Date(now.getTime() + confirmationTimeout);
-        await booking[0].save({ session });
         
         // Update vehicle status to reserved
         await Vehicle.findByIdAndUpdate(vehicleId, { status: 'reserved' }, { session });

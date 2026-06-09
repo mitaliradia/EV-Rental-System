@@ -72,24 +72,6 @@ export const updateBookingStatus = async (req, res) => {
         // Free up the vehicle
         await Vehicle.findByIdAndUpdate(booking.vehicle,{status: 'available',availableAfter:null});
     }
-    else if(newStatus==='confirmed' && booking.status==='pending-confirmation'){
-        booking.status='confirmed';
-        
-        // Intelligent payment deadline based on booking timing
-        const now = new Date();
-        const startTime = new Date(booking.startTime);
-        const isAdvanceBooking = startTime.getTime() > (now.getTime() + 12 * 60 * 60 * 1000); // 12+ hours ahead
-        
-        // Issue #31: Extended payment window - 30 minutes for immediate, 2 hours for advance
-        const paymentWindow = isAdvanceBooking ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000; // 2 hours vs 30 minutes
-        booking.paymentDeadline = new Date(now.getTime() + paymentWindow);
-        
-        // Keep vehicle as reserved when confirmed
-        await Vehicle.findByIdAndUpdate(booking.vehicle, {status: 'reserved'});
-        
-        // Send confirmation email
-        await sendBookingConfirmationEmail(booking, booking.user);
-    }
     else{
         return res.status(400).json({message:`Invalid status transition from ${booking.status} to ${newStatus}`});
     }
@@ -183,10 +165,7 @@ export const getDashboardData = async (req, res) => {
         ] = await Promise.all([
             Station.findById(stationId).lean(),
             Vehicle.find({ station: stationId }).lean(),
-            Booking.find({ station: stationId, status: 'pending-confirmation' })
-                .populate('user','name email')
-                .populate('vehicle','modelName')
-                .lean(),
+            [],
             Booking.find({station:stationId,status:'confirmed'})
                 .populate('user','name email')
                 .populate('vehicle','modelName')

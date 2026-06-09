@@ -42,11 +42,10 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Indexes for performance 
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
+// Removed duplicate indexes for email and phone (already defined as unique in schema)
 userSchema.index({ role: 1, station: 1 });
 userSchema.index({ loyaltyTier: 1 });
-userSchema.index({ referralCode: 1 });
+// Removed duplicate index for referralCode (already defined as unique in schema)
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();

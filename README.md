@@ -44,79 +44,6 @@
 - Multer
 - Node-Cron
 
-## Installation and Setup
-
-### Prerequisites
-- Node.js v14 or higher
-- MongoDB Atlas or local MongoDB
-- Razorpay account
-
-### Backend Setup
-
-Clone the repository:
-```bash
-git clone https://github.com/yourusername/EV-Rental-System.git
-cd EV-Rental-System/backend
-```
-
-Install dependencies:
-```bash
-npm install
-```
-
-Create a .env file in the backend directory:
-```env
-JWT_SECRET=your_jwt_secret_key
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-```
-
-Start the backend server:
-```bash
-npm run dev
-```
-
-### Frontend Setup
-Navigate to frontend directory:
-```bash
-cd ../frontend
-```
-
-
-Install dependencies:
-```bash
-npm install
-```
-
-
-Create a .env file in the frontend directory:
-```env
-VITE_API_URL=http://localhost:5000
-VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
-```
-
-
-Start the frontend development server:
-```bash
-npm run dev
-```
-
-### Database Seeding
-
-Import initial data:
-```bash
-cd backend
-npm run data:import
-```
-
-
-Clear database data:
-```bash
-npm run data:destroy
 ```
 
 ## User Roles and Access
@@ -196,3 +123,9 @@ npm run data:destroy
 ### Payments
 - POST /api/payments/create-order
 - POST /api/payments/verify
+
+
+
+Integrated ioredis for heavy database queries
+Implemented TTL
+Cache Eviction/Invalidation

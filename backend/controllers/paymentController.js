@@ -4,6 +4,7 @@ import Booking from '../models/Booking.js';
 import Vehicle from '../models/Vehicle.js';
 import User from '../models/User.js';
 import LoyaltyTransaction from '../models/LoyaltyTransaction.js';
+import { queueService } from '../services/queueService.js';
 
 async function finalizeSuccessfulPayment(booking, paymentId, source = 'verify') {
     if (!booking) return;
@@ -54,6 +55,16 @@ async function finalizeSuccessfulPayment(booking, paymentId, source = 'verify') 
                 description: `Earned ${pointsEarned} points for booking`
             });
         }
+
+        // Trigger decoupled job queue for booking confirmation email
+        if (!wasAlreadyCompleted) {
+            // Populate vehicle if not already done
+            if (!booking.populated('vehicle')) {
+                await booking.populate('vehicle');
+            }
+            // Add email job to queueService
+            await queueService.addEmailJob(booking, user);
+        }
     }
 
     if (global.io) {
@@ -96,7 +107,14 @@ export const createPaymentOrder = async (req, res) => {
         }
 
         // Calculate total including security deposit
-        const totalAmount = booking.totalCost + (booking.securityDeposit?.amount || 0);
+        let totalAmount = booking.totalCost + (booking.securityDeposit?.amount || 0);
+        
+        // If it's an extension of an active booking, only charge the additional cost of the extension
+        const isExtension = booking.status === 'active' && booking.modifications && booking.modifications.length > 0;
+        if (isExtension) {
+            const lastMod = booking.modifications[booking.modifications.length - 1];
+            totalAmount = lastMod.additionalCost;
+        }
 
         const options = {
             amount: Math.round(totalAmount * 100), // Amount in paise
@@ -106,8 +124,9 @@ export const createPaymentOrder = async (req, res) => {
                 bookingId: bookingId,
                 userId: req.user._id.toString(),
                 vehicleModel: booking.vehicle.modelName,
-                bookingCost: booking.totalCost,
-                securityDeposit: booking.securityDeposit?.amount || 0
+                bookingCost: isExtension ? totalAmount : booking.totalCost,
+                securityDeposit: isExtension ? 0 : (booking.securityDeposit?.amount || 0),
+                isExtension: isExtension ? 'true' : 'false'
             }
         };
 
