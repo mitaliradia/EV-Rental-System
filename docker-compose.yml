@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # 1. MongoDB Service (Persistent Database)
+  mongo:
+    image: mongo:6.0
+    container_name: ev-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - ev-network
+
+  # 2. Redis Service (Persistent Caching & Queues)
+  redis:
+    image: redis:7-alpine
+    container_name: ev-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ev-network
+
+  # 3. Node.js Express Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ev-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/ev-rental
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-super_secret_key_123}
+      - FRONTEND_URL=http://localhost:5173
+      # Load sensitive keys from your local host env or root .env
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - RAZORPAY_WEBHOOK_SECRET=${RAZORPAY_WEBHOOK_SECRET}
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - backend-uploads:/app/uploads
+    networks:
+      - ev-network
+
+  # 4. React Vite Frontend (served via Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5000
+    container_name: ev-frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - ev-network
+
+# Named Volumes for persistence
+volumes:
+  mongo-data:
+    driver: local
+  redis-data:
+    driver: local
+  backend-uploads:
+    driver: local
+
+# Bridge Network for container communication
+networks:
+  ev-network:
+    driver: bridge
