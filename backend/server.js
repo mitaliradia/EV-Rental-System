@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url';
 
 import http from 'http';
 import {Server} from 'socket.io';
+import Redis from 'ioredis';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { startEmailWorker } from './jobs/emailWorker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -132,6 +135,58 @@ const io = new Server(server, {
     }
 });
 
+// Setup Socket.IO Redis Adapter for horizontal scalability
+const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const setupSocketRedisAdapter = async (ioInstance) => {
+    try {
+        const pubClient = new Redis(REDIS_URL, {
+            maxRetriesPerRequest: null,
+            connectTimeout: 2000,
+            retryStrategy: (times) => {
+                if (times > 2) {
+                    console.warn('⚠️ Socket.IO Redis Adapter connection failed. Running on local memory adapter.');
+                    return null; // Stop retrying
+                }
+                return 1000;
+            }
+        });
+
+        pubClient.on('error', (err) => {
+            // Silence connection errors once we know it failed
+        });
+
+        const subClient = pubClient.duplicate();
+        subClient.on('error', (err) => {
+            // Silence connection errors once we know it failed
+        });
+
+        let connected = false;
+        await Promise.race([
+            new Promise((resolve) => {
+                pubClient.once('connect', () => {
+                    connected = true;
+                    resolve();
+                });
+            }),
+            new Promise((resolve) => {
+                pubClient.once('error', () => {
+                    resolve();
+                });
+                setTimeout(resolve, 2200);
+            })
+        ]);
+
+        if (connected) {
+            ioInstance.adapter(createAdapter(pubClient, subClient));
+            console.log('🚀 Socket.IO Redis Adapter integrated successfully!');
+        }
+    } catch (error) {
+        console.warn('⚠️ Socket.IO Redis adapter could not be initialized. Falling back to local memory adapter.', error.message);
+    }
+};
+
+setupSocketRedisAdapter(io);
+
 // Socket.IO authentication middleware
 io.use(socketAuthMiddleware);
 
@@ -203,6 +258,9 @@ app.use('/api/loyalty', loyaltyRoutes);
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+
+    // Start background email worker
+    startEmailWorker();
 
     //2. Start the scheduled jobs after the server is successfully running
     startCronJobs();

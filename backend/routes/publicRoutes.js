@@ -3,15 +3,31 @@ import Station from '../models/Station.js';
 import Vehicle from '../models/Vehicle.js';
 import Booking from '../models/Booking.js';
 
+import { cacheService } from '../services/cacheService.js';
+
 const router = express.Router();
 
 // GET /api/public/stations
 router.get('/stations', async(req,res) => {
     try {
+        const cacheKey = 'public:stations';
+        
+        // Try getting cached stations list
+        const cachedStations = await cacheService.get(cacheKey);
+        if (cachedStations) {
+            console.log('⚡ Cache Hit: serving stations list from Redis/Memory');
+            return res.json(cachedStations);
+        }
+        
+        console.log('🐢 Cache Miss: fetching stations list from MongoDB');
         const stations = await Station.find({});
+        
+        // Cache the list for 1 hour (3600 seconds)
+        await cacheService.set(cacheKey, stations, 3600);
+        
         res.json(stations);
     } catch (error) {
-        console.error("Error fetching stations:", error); // This will now log the error to your terminal
+        console.error("Error fetching stations:", error);
         res.status(500).json({ message: "Server Error: Could not fetch stations." });
     }
 });
